@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		0428AFEE7AD7C90A7AF4CB5E /* DeleteConfirmViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 777129A4A9C8A5C71B7E5210 /* DeleteConfirmViewController.swift */; };
 		300713C52219D54100F553AC /* AutoCellHeightUITableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 300713C42219D54100F553AC /* AutoCellHeightUITableViewController.swift */; };
 		3010CB6026DA4F87008964D2 /* SwiftyUserDefaults in Frameworks */ = {isa = PBXBuildFile; productRef = 3010CB5F26DA4F87008964D2 /* SwiftyUserDefaults */; };
 		3010CB6326DA4FE9008964D2 /* FavIcon in Frameworks */ = {isa = PBXBuildFile; productRef = 3010CB6226DA4FE9008964D2 /* FavIcon */; };
@@ -16,8 +17,6 @@
 		301F646D216166AA0071A4CE /* AdditionFieldTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 301F646C216166AA0071A4CE /* AdditionFieldTest.swift */; };
 		302269B323E634B000F843A3 /* PGPKeyFIleImportTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 302269B223E634B000F843A3 /* PGPKeyFIleImportTableViewController.swift */; };
 		302B2C9822C2BDE700D831EE /* AppKeychain.swift in Sources */ = {isa = PBXBuildFile; fileRef = 302B2C9722C2BDE700D831EE /* AppKeychain.swift */; };
-		8A7150122F60000100C7A64D /* ObjectiveCExceptionCatcher.h in Headers */ = {isa = PBXBuildFile; fileRef = 8A7150102F60000100C7A64D /* ObjectiveCExceptionCatcher.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		8A7150132F60000100C7A64D /* ObjectiveCExceptionCatcher.m in Sources */ = {isa = PBXBuildFile; fileRef = 8A7150112F60000100C7A64D /* ObjectiveCExceptionCatcher.m */; };
 		302E85612125ECC70031BA64 /* Parser.swift in Sources */ = {isa = PBXBuildFile; fileRef = 302E85602125ECC70031BA64 /* Parser.swift */; };
 		302E85632125EE550031BA64 /* Constants.swift in Sources */ = {isa = PBXBuildFile; fileRef = 302E85622125EE550031BA64 /* Constants.swift */; };
 		3032327422C7F710009EBD9C /* KeyFileManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3032327322C7F710009EBD9C /* KeyFileManager.swift */; };
@@ -104,6 +103,10 @@
 		30EE3A16241E98C1009FBB61 /* Intents.intentdefinition in Sources */ = {isa = PBXBuildFile; fileRef = 30EE3A19241E98C1009FBB61 /* Intents.intentdefinition */; settings = {ATTRIBUTES = (no_codegen, ); }; };
 		30EE3A17241E98C1009FBB61 /* Intents.intentdefinition in Sources */ = {isa = PBXBuildFile; fileRef = 30EE3A19241E98C1009FBB61 /* Intents.intentdefinition */; settings = {ATTRIBUTES = (codegen, ); }; };
 		30FD2F78214D9E0E005E0A92 /* ParserTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 30FD2F77214D9E0E005E0A92 /* ParserTest.swift */; };
+		39612C4A4A969DF7F43E2677 /* PasswordTree.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7EDEED50FB4B10029AA74260 /* PasswordTree.swift */; };
+		3A952A70466BF7532ECD9652 /* Toast.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8887C44D35C6444BB6B11780 /* Toast.swift */; };
+		3CC560D266E7857065AD7E32 /* Theme.swift in Sources */ = {isa = PBXBuildFile; fileRef = F2D9ECF1BE3309C0B74E9E28 /* Theme.swift */; };
+		50163FBFC1D86A26AF0D468C /* iAWriterMonoS-Bold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 81FE372E519A6DA8D8AE5928 /* iAWriterMonoS-Bold.ttf */; };
 		556EC3D322335C5F00934F9C /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = 30BF5ECA21EA8FB5000E4154 /* Localizable.strings */; };
 		556EC3D422335C5F00934F9C /* Localizable.stringsdict in Resources */ = {isa = PBXBuildFile; fileRef = 30BF5ED521ED2434000E4154 /* Localizable.stringsdict */; };
 		556EC3D522335CD900934F9C /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = 30BF5ECA21EA8FB5000E4154 /* Localizable.strings */; };
@@ -113,13 +116,21 @@
 		556EC3D922335D2800934F9C /* Localizable.stringsdict in Resources */ = {isa = PBXBuildFile; fileRef = 30BF5ED521ED2434000E4154 /* Localizable.stringsdict */; };
 		556EC3DA22335D3400934F9C /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 30C25DBF21F3599E00BB27BB /* InfoPlist.strings */; };
 		556EC3DB22335D3D00934F9C /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 30C25DBF21F3599E00BB27BB /* InfoPlist.strings */; };
+		5C128D2723E85C7343A799F8 /* ThemeAppearance.swift in Sources */ = {isa = PBXBuildFile; fileRef = B81B15F90F5C24BB45FEFE98 /* ThemeAppearance.swift */; };
 		5F9D7B0D27AF6F7500A8AB22 /* CryptoTokenKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5F9D7B0C27AF6F7300A8AB22 /* CryptoTokenKit.framework */; settings = {ATTRIBUTES = (Weak, ); }; };
 		5F9D7B0E27AF6FCA00A8AB22 /* CryptoTokenKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5F9D7B0C27AF6F7300A8AB22 /* CryptoTokenKit.framework */; settings = {ATTRIBUTES = (Weak, ); }; };
 		5F9D7B0F27AF6FD200A8AB22 /* CryptoTokenKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5F9D7B0C27AF6F7300A8AB22 /* CryptoTokenKit.framework */; settings = {ATTRIBUTES = (Weak, ); }; };
+		62823339A722994501E36A66 /* PGPPassphraseMemory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 08F55EA327ADCE9CC5516570 /* PGPPassphraseMemory.swift */; };
+		69D9817B90BCC02124E00863 /* PasswordBrowserViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = A6A084EBB939285B06A113FB /* PasswordBrowserViewController.swift */; };
 		8A4716692F5EF56900C7A64D /* AppKeychainTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A4716682F5EF56900C7A64D /* AppKeychainTest.swift */; };
 		8A4716712F5EF7A900C7A64D /* PersistenceControllerTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A47166F2F5EF7A900C7A64D /* PersistenceControllerTest.swift */; };
 		8A4756A32F6374CC00131B6D /* PersistenceController+UnitTestHelpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A4756A22F6374B700131B6D /* PersistenceController+UnitTestHelpers.swift */; };
+		8A7150122F60000100C7A64D /* ObjectiveCExceptionCatcher.h in Headers */ = {isa = PBXBuildFile; fileRef = 8A7150102F60000100C7A64D /* ObjectiveCExceptionCatcher.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		8A7150132F60000100C7A64D /* ObjectiveCExceptionCatcher.m in Sources */ = {isa = PBXBuildFile; fileRef = 8A7150112F60000100C7A64D /* ObjectiveCExceptionCatcher.m */; };
 		8AD8EBF32F5E2723007475AB /* Fixtures in Resources */ = {isa = PBXBuildFile; fileRef = 8AD8EBF22F5E268D007475AB /* Fixtures */; };
+		8DE1ADEAFFEBAADC1FBD1F33 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = AD52F2F510E6A1B40AC980A2 /* SceneDelegate.swift */; };
+		8F9F16CF64EDAE30A313B02E /* Theme.swift in Sources */ = {isa = PBXBuildFile; fileRef = F2D9ECF1BE3309C0B74E9E28 /* Theme.swift */; };
+		91D4C3D90D1B2708ED367275 /* iAWriterMonoS-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = FC6445A4E3562F352675BA6C /* iAWriterMonoS-Regular.ttf */; };
 		9A1D1CE526E5D1CE0052028E /* OneTimePassword in Frameworks */ = {isa = PBXBuildFile; productRef = 9A1D1CE426E5D1CE0052028E /* OneTimePassword */; };
 		9A1D1CE726E5D2230052028E /* OneTimePassword in Frameworks */ = {isa = PBXBuildFile; productRef = 9A1D1CE626E5D2230052028E /* OneTimePassword */; };
 		9A1F47FA26E5CF4B000C0E01 /* OneTimePassword in Frameworks */ = {isa = PBXBuildFile; productRef = 9A1F47F926E5CF4B000C0E01 /* OneTimePassword */; };
@@ -165,6 +176,7 @@
 		9AFC880025B51EC3008D6060 /* PasswordEncryptor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9AFC87FF25B51EC3008D6060 /* PasswordEncryptor.swift */; };
 		9AFC882725B53BF4008D6060 /* PasswordDecryptor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9AFC87EF25B514AD008D6060 /* PasswordDecryptor.swift */; };
 		9AFC882E25B53BF5008D6060 /* PasswordDecryptor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9AFC87EF25B514AD008D6060 /* PasswordDecryptor.swift */; };
+		9EE723AE1DE4F0A04AC448C1 /* iAWriterMonoS-Bold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 81FE372E519A6DA8D8AE5928 /* iAWriterMonoS-Bold.ttf */; };
 		A20691F41F2A3D0E0096483D /* SecurePasteboard.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20691F31F2A3D0E0096483D /* SecurePasteboard.swift */; };
 		A217ACE41E9BBBBD00A1A6CF /* GitConfigSettingsTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = A217ACE31E9BBBBD00A1A6CF /* GitConfigSettingsTableViewController.swift */; };
 		A2367BA01EF0387000C8FE8B /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = A2367B9F1EF0387000C8FE8B /* Assets.xcassets */; };
@@ -183,6 +195,12 @@
 		A2A7813F1E97DBD9001311F5 /* QRScannerController.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2A7813E1E97DBD9001311F5 /* QRScannerController.swift */; };
 		A2AA934422DE30DD00D79A00 /* PGPAgent.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2AA934322DE30DD00D79A00 /* PGPAgent.swift */; };
 		A2AA934622DE3A8000D79A00 /* PGPAgentTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2AA934522DE3A8000D79A00 /* PGPAgentTest.swift */; };
+		A30B82D91B5DBC102CD12FCC /* KeyCommands.swift in Sources */ = {isa = PBXBuildFile; fileRef = B7EB072BEF35E17085780364 /* KeyCommands.swift */; };
+		AC7CFD2F34B161E5EB3EB598 /* EncryptionSettingsTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 17412D01491B792BC01E73D9 /* EncryptionSettingsTableViewController.swift */; };
+		C549463813A109269414472A /* iAWriterMonoS-Bold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 81FE372E519A6DA8D8AE5928 /* iAWriterMonoS-Bold.ttf */; };
+		C8B78EBB3D9ED4FB75C7AC9C /* PasswordTree.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7EDEED50FB4B10029AA74260 /* PasswordTree.swift */; };
+		D1A5F0E89466D1EC729DEA4D /* iAWriterMonoS-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = FC6445A4E3562F352675BA6C /* iAWriterMonoS-Regular.ttf */; };
+		D847786C8F15975FA9F7ED03 /* PGPPassphraseBiometrics.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CACC4805912AE47CEE91A18 /* PGPPassphraseBiometrics.swift */; };
 		DC037CA61E4B883900609409 /* OpenSourceComponentsTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC037CA51E4B883900609409 /* OpenSourceComponentsTableViewController.swift */; };
 		DC037CA81E4B898100609409 /* BasicStaticTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC037CA71E4B898100609409 /* BasicStaticTableViewController.swift */; };
 		DC037CAA1E4B8EAE00609409 /* SpecialThanksTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC037CA91E4B8EAE00609409 /* SpecialThanksTableViewController.swift */; };
@@ -194,7 +212,6 @@
 		DC037CBF1E4ED4E100609409 /* TextViewTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC037CBD1E4ED4E100609409 /* TextViewTableViewCell.swift */; };
 		DC037CC01E4ED4E100609409 /* TextViewTableViewCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = DC037CBE1E4ED4E100609409 /* TextViewTableViewCell.xib */; };
 		DC0F7692283C00220042DA74 /* passKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A26075781EEC6F34005DB03E /* passKit.framework */; };
-		DC193FFA1E49B4430077E0A3 /* AdvancedSettingsTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC193FF91E49B4430077E0A3 /* AdvancedSettingsTableViewController.swift */; };
 		DC30F83829BED4E2001EB12B /* PasswordGeneratorUISwitch.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC30F83729BED4E2001EB12B /* PasswordGeneratorUISwitch.swift */; };
 		DC30F83A29BED611001EB12B /* PasswordGeneratorUISlider.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC30F83929BED611001EB12B /* PasswordGeneratorUISlider.swift */; };
 		DC3E64E61E656F11009A83DE /* CommitLogsTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC3E64E51E656F11009A83DE /* CommitLogsTableViewController.swift */; };
@@ -207,8 +224,8 @@
 		DC64745F2D45B240004B4BBC /* GitRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC64745E2D45B23A004B4BBC /* GitRepository.swift */; };
 		DC6474612D46A8F8004B4BBC /* GitRepositoryTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC6474602D46A8F2004B4BBC /* GitRepositoryTest.swift */; };
 		DC7CBBBD2D0FA3F2003BB4D2 /* YubiKit in Frameworks */ = {isa = PBXBuildFile; productRef = DC7CBBBC2D0FA3F2003BB4D2 /* YubiKit */; };
-		DC7CBBC22D0FA3F2003BB4D3 /* DequeModule in Frameworks */ = {isa = PBXBuildFile; productRef = DC7CBBC12D0FA3F2003BB4D3 /* DequeModule */; };
 		DC7CBBBF2D0FAC92003BB4D2 /* YKFSmartCardInterfaceExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC7CBBBE2D0FAC8E003BB4D2 /* YKFSmartCardInterfaceExtension.swift */; };
+		DC7CBBC22D0FA3F2003BB4D3 /* DequeModule in Frameworks */ = {isa = PBXBuildFile; productRef = DC7CBBC12D0FA3F2003BB4D3 /* DequeModule */; };
 		DC8963C01E38EEB900828B09 /* SSHKeyURLImportTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC8963BF1E38EEB900828B09 /* SSHKeyURLImportTableViewController.swift */; };
 		DC917BD71E2E8231000FDF54 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC917BD61E2E8231000FDF54 /* AppDelegate.swift */; };
 		DC917BDC1E2E8231000FDF54 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = DC917BDA1E2E8231000FDF54 /* Main.storyboard */; };
@@ -229,6 +246,10 @@
 		DCFB77A31E500D9C008DE471 /* PasswordDetailTitleTableViewCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = DCFB77A21E500D9C008DE471 /* PasswordDetailTitleTableViewCell.xib */; };
 		DCFB77A71E502DF9008DE471 /* EditPasswordTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCFB77A61E502DF9008DE471 /* EditPasswordTableViewController.swift */; };
 		DCFB77A91E502FF6008DE471 /* PasswordEditorTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCFB77A81E502FF6008DE471 /* PasswordEditorTableViewController.swift */; };
+		EFAA67A05620A8909253B980 /* Theme.swift in Sources */ = {isa = PBXBuildFile; fileRef = F2D9ECF1BE3309C0B74E9E28 /* Theme.swift */; };
+		F1079E5E5C90A18A0FBAD0C6 /* PasswordTree.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7EDEED50FB4B10029AA74260 /* PasswordTree.swift */; };
+		FB818AFACB3D4599AB0336A9 /* iAWriterMonoS-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = FC6445A4E3562F352675BA6C /* iAWriterMonoS-Regular.ttf */; };
+		FDEE6D41314AE0CBCBC74B87 /* PasswordTreeDataSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49B313DC5660FD49458B30C2 /* PasswordTreeDataSource.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -339,6 +360,9 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		08F55EA327ADCE9CC5516570 /* PGPPassphraseMemory.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = PGPPassphraseMemory.swift; sourceTree = "<group>"; };
+		17412D01491B792BC01E73D9 /* EncryptionSettingsTableViewController.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = EncryptionSettingsTableViewController.swift; sourceTree = "<group>"; };
+		2CACC4805912AE47CEE91A18 /* PGPPassphraseBiometrics.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = PGPPassphraseBiometrics.swift; sourceTree = "<group>"; };
 		300713C42219D54100F553AC /* AutoCellHeightUITableViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AutoCellHeightUITableViewController.swift; sourceTree = "<group>"; };
 		301F6462216162550071A4CE /* AdditionField.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AdditionField.swift; sourceTree = "<group>"; };
 		301F6467216165290071A4CE /* ConstantsTest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConstantsTest.swift; sourceTree = "<group>"; };
@@ -346,8 +370,6 @@
 		302202EE222F14E400555236 /* SearchBarScope.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchBarScope.swift; sourceTree = "<group>"; };
 		302269B223E634B000F843A3 /* PGPKeyFIleImportTableViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PGPKeyFIleImportTableViewController.swift; sourceTree = "<group>"; };
 		302B2C9722C2BDE700D831EE /* AppKeychain.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppKeychain.swift; sourceTree = "<group>"; };
-		8A7150102F60000100C7A64D /* ObjectiveCExceptionCatcher.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ObjectiveCExceptionCatcher.h; sourceTree = "<group>"; };
-		8A7150112F60000100C7A64D /* ObjectiveCExceptionCatcher.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ObjectiveCExceptionCatcher.m; sourceTree = "<group>"; };
 		302E85602125ECC70031BA64 /* Parser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Parser.swift; sourceTree = "<group>"; };
 		302E85622125EE550031BA64 /* Constants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Constants.swift; sourceTree = "<group>"; };
 		3032327322C7F710009EBD9C /* KeyFileManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeyFileManager.swift; sourceTree = "<group>"; };
@@ -430,10 +452,17 @@
 		30EE3A1B241E98C6009FBB61 /* de */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = de; path = de.lproj/Intents.strings; sourceTree = "<group>"; };
 		30F6C1B327664C7200BE5AB2 /* SVProgressHUD.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = SVProgressHUD.xcframework; path = Carthage/Build/SVProgressHUD.xcframework; sourceTree = "<group>"; };
 		30FD2F77214D9E0E005E0A92 /* ParserTest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ParserTest.swift; sourceTree = "<group>"; };
+		49B313DC5660FD49458B30C2 /* PasswordTreeDataSource.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = PasswordTreeDataSource.swift; sourceTree = "<group>"; };
 		5F9D7B0C27AF6F7300A8AB22 /* CryptoTokenKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CryptoTokenKit.framework; path = System/Library/Frameworks/CryptoTokenKit.framework; sourceTree = SDKROOT; };
+		777129A4A9C8A5C71B7E5210 /* DeleteConfirmViewController.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = DeleteConfirmViewController.swift; sourceTree = "<group>"; };
+		7EDEED50FB4B10029AA74260 /* PasswordTree.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = PasswordTree.swift; sourceTree = "<group>"; };
+		81FE372E519A6DA8D8AE5928 /* iAWriterMonoS-Bold.ttf */ = {isa = PBXFileReference; includeInIndex = 1; path = "iAWriterMonoS-Bold.ttf"; sourceTree = "<group>"; };
+		8887C44D35C6444BB6B11780 /* Toast.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = Toast.swift; sourceTree = "<group>"; };
 		8A4716682F5EF56900C7A64D /* AppKeychainTest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppKeychainTest.swift; sourceTree = "<group>"; };
 		8A47166F2F5EF7A900C7A64D /* PersistenceControllerTest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PersistenceControllerTest.swift; sourceTree = "<group>"; };
 		8A4756A22F6374B700131B6D /* PersistenceController+UnitTestHelpers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "PersistenceController+UnitTestHelpers.swift"; sourceTree = "<group>"; };
+		8A7150102F60000100C7A64D /* ObjectiveCExceptionCatcher.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ObjectiveCExceptionCatcher.h; sourceTree = "<group>"; };
+		8A7150112F60000100C7A64D /* ObjectiveCExceptionCatcher.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ObjectiveCExceptionCatcher.m; sourceTree = "<group>"; };
 		8AD8EBF22F5E268D007475AB /* Fixtures */ = {isa = PBXFileReference; lastKnownFileType = folder; path = Fixtures; sourceTree = "<group>"; };
 		9A1EF0B324C50DD80074FEAC /* passBeta.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = passBeta.entitlements; sourceTree = "<group>"; };
 		9A1EF0B424C50E780074FEAC /* passBetaAutoFillExtension.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = passBetaAutoFillExtension.entitlements; sourceTree = "<group>"; };
@@ -487,6 +516,11 @@
 		A2AA934322DE30DD00D79A00 /* PGPAgent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PGPAgent.swift; sourceTree = "<group>"; };
 		A2AA934522DE3A8000D79A00 /* PGPAgentTest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PGPAgentTest.swift; sourceTree = "<group>"; };
 		A2BC54C71EEE5669001FAFBD /* Objective-CBridgingHeader.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "Objective-CBridgingHeader.h"; sourceTree = "<group>"; };
+		A6A084EBB939285B06A113FB /* PasswordBrowserViewController.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = PasswordBrowserViewController.swift; sourceTree = "<group>"; };
+		AD52F2F510E6A1B40AC980A2 /* SceneDelegate.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
+		B7EB072BEF35E17085780364 /* KeyCommands.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = KeyCommands.swift; sourceTree = "<group>"; };
+		B81B15F90F5C24BB45FEFE98 /* ThemeAppearance.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ThemeAppearance.swift; sourceTree = "<group>"; };
+		D1CAD3B73E20A1BD6FDEE1F9 /* iA-Writer-LICENSE.md */ = {isa = PBXFileReference; includeInIndex = 1; path = "iA-Writer-LICENSE.md"; sourceTree = "<group>"; };
 		DC037CA51E4B883900609409 /* OpenSourceComponentsTableViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OpenSourceComponentsTableViewController.swift; sourceTree = "<group>"; };
 		DC037CA71E4B898100609409 /* BasicStaticTableViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BasicStaticTableViewController.swift; sourceTree = "<group>"; };
 		DC037CA91E4B8EAE00609409 /* SpecialThanksTableViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SpecialThanksTableViewController.swift; sourceTree = "<group>"; };
@@ -499,7 +533,6 @@
 		DC037CBE1E4ED4E100609409 /* TextViewTableViewCell.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = TextViewTableViewCell.xib; sourceTree = "<group>"; };
 		DC13B14E1E8640810097803F /* passTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = passTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		DC13B1521E8640810097803F /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		DC193FF91E49B4430077E0A3 /* AdvancedSettingsTableViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; lineEnding = 0; path = AdvancedSettingsTableViewController.swift; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
 		DC30F83629BAFD2E001EB12B /* it */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = it; path = it.lproj/Main.strings; sourceTree = "<group>"; };
 		DC30F83729BED4E2001EB12B /* PasswordGeneratorUISwitch.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PasswordGeneratorUISwitch.swift; sourceTree = "<group>"; };
 		DC30F83929BED611001EB12B /* PasswordGeneratorUISlider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PasswordGeneratorUISlider.swift; sourceTree = "<group>"; };
@@ -538,6 +571,8 @@
 		DCFB77A21E500D9C008DE471 /* PasswordDetailTitleTableViewCell.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = PasswordDetailTitleTableViewCell.xib; sourceTree = "<group>"; };
 		DCFB77A61E502DF9008DE471 /* EditPasswordTableViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EditPasswordTableViewController.swift; sourceTree = "<group>"; };
 		DCFB77A81E502FF6008DE471 /* PasswordEditorTableViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PasswordEditorTableViewController.swift; sourceTree = "<group>"; };
+		F2D9ECF1BE3309C0B74E9E28 /* Theme.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = Theme.swift; sourceTree = "<group>"; };
+		FC6445A4E3562F352675BA6C /* iAWriterMonoS-Regular.ttf */ = {isa = PBXFileReference; includeInIndex = 1; path = "iAWriterMonoS-Regular.ttf"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -842,6 +877,8 @@
 				9AFC87FF25B51EC3008D6060 /* PasswordEncryptor.swift */,
 				9AFC87F725B51742008D6060 /* PasswordManager.swift */,
 				9AFC87E125B3B5C6008D6060 /* PasswordNavigationDataSource.swift */,
+				49B313DC5660FD49458B30C2 /* PasswordTreeDataSource.swift */,
+				7EDEED50FB4B10029AA74260 /* PasswordTree.swift */,
 			);
 			path = Services;
 			sourceTree = "<group>";
@@ -986,8 +1023,21 @@
 				8A7150112F60000100C7A64D /* ObjectiveCExceptionCatcher.m */,
 				302202EE222F14E400555236 /* SearchBarScope.swift */,
 				30697C2721F63C590064FCAC /* Utils.swift */,
+				08F55EA327ADCE9CC5516570 /* PGPPassphraseMemory.swift */,
+				2CACC4805912AE47CEE91A18 /* PGPPassphraseBiometrics.swift */,
 			);
 			path = Helpers;
+			sourceTree = "<group>";
+		};
+		C6006AE49E26740FFD156B7D /* Fonts */ = {
+			isa = PBXGroup;
+			children = (
+				FC6445A4E3562F352675BA6C /* iAWriterMonoS-Regular.ttf */,
+				81FE372E519A6DA8D8AE5928 /* iAWriterMonoS-Bold.ttf */,
+				D1CAD3B73E20A1BD6FDEE1F9 /* iA-Writer-LICENSE.md */,
+			);
+			name = Fonts;
+			path = Fonts;
 			sourceTree = "<group>";
 		};
 		DC13B14F1E8640810097803F /* passTests */ = {
@@ -1005,7 +1055,6 @@
 				DC037CB11E4CAB1700609409 /* AboutRepositoryTableViewController.swift */,
 				DC962CDE1E4B62C10033B5D8 /* AboutTableViewController.swift */,
 				DC037CB71E4DD1A500609409 /* AddPasswordTableViewController.swift */,
-				DC193FF91E49B4430077E0A3 /* AdvancedSettingsTableViewController.swift */,
 				300713C42219D54100F553AC /* AutoCellHeightUITableViewController.swift */,
 				DC037CA71E4B898100609409 /* BasicStaticTableViewController.swift */,
 				DC3E64E51E656F11009A83DE /* CommitLogsTableViewController.swift */,
@@ -1030,6 +1079,9 @@
 				DCC441531E916382008A90C4 /* SSHKeyArmorImportTableViewController.swift */,
 				30650E7023F82AF8005CCD5E /* SSHKeyFileImportTableViewController.swift */,
 				DC8963BF1E38EEB900828B09 /* SSHKeyURLImportTableViewController.swift */,
+				777129A4A9C8A5C71B7E5210 /* DeleteConfirmViewController.swift */,
+				A6A084EBB939285B06A113FB /* PasswordBrowserViewController.swift */,
+				17412D01491B792BC01E73D9 /* EncryptionSettingsTableViewController.swift */,
 			);
 			path = Controllers;
 			sourceTree = "<group>";
@@ -1041,6 +1093,9 @@
 				30695E1F24FA6C6500C9D46E /* PasswordAlertPresenter.swift */,
 				A20691F31F2A3D0E0096483D /* SecurePasteboard.swift */,
 				A2A61C1F1EEFABAD00CFE063 /* UtilsExtension.swift */,
+				F2D9ECF1BE3309C0B74E9E28 /* Theme.swift */,
+				B81B15F90F5C24BB45FEFE98 /* ThemeAppearance.swift */,
+				B7EB072BEF35E17085780364 /* KeyCommands.swift */,
 			);
 			path = Helpers;
 			sourceTree = "<group>";
@@ -1067,6 +1122,7 @@
 				DC037CBE1E4ED4E100609409 /* TextViewTableViewCell.xib */,
 				30C25DD621F4834D00BB27BB /* UICodeHighlightingLabel.swift */,
 				30C25DD521F4834D00BB27BB /* UILocalizedLabel.swift */,
+				8887C44D35C6444BB6B11780 /* Toast.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -1128,6 +1184,8 @@
 				30BF5ED521ED2434000E4154 /* Localizable.stringsdict */,
 				30EE3A19241E98C1009FBB61 /* Intents.intentdefinition */,
 				DC917BE21E2E8231000FDF54 /* Info.plist */,
+				C6006AE49E26740FFD156B7D /* Fonts */,
+				AD52F2F510E6A1B40AC980A2 /* SceneDelegate.swift */,
 			);
 			path = pass;
 			sourceTree = "<group>";
@@ -1330,12 +1388,12 @@
 				TargetAttributes = {
 					30A69944240EED5E00B7D967 = {
 						CreatedOnToolsVersion = 11.3;
-						DevelopmentTeam = 4WDM8E95VU;
+						DevelopmentTeam = 98YALF2T43;
 						ProvisioningStyle = Manual;
 					};
 					A239F5942158C08B00576CBF = {
 						CreatedOnToolsVersion = 10.0;
-						DevelopmentTeam = 4WDM8E95VU;
+						DevelopmentTeam = 98YALF2T43;
 						LastSwiftMigration = 1020;
 						ProvisioningStyle = Manual;
 						SystemCapabilities = {
@@ -1360,7 +1418,7 @@
 					};
 					A26700231EEC466A00176B8A = {
 						CreatedOnToolsVersion = 8.3.3;
-						DevelopmentTeam = 4WDM8E95VU;
+						DevelopmentTeam = 98YALF2T43;
 						LastSwiftMigration = 1020;
 						ProvisioningStyle = Manual;
 						SystemCapabilities = {
@@ -1374,14 +1432,14 @@
 					};
 					DC13B14D1E8640810097803F = {
 						CreatedOnToolsVersion = 8.3;
-						DevelopmentTeam = 4WDM8E95VU;
+						DevelopmentTeam = 98YALF2T43;
 						LastSwiftMigration = 1020;
 						ProvisioningStyle = Automatic;
 						TestTargetID = DC917BD21E2E8231000FDF54;
 					};
 					DC917BD21E2E8231000FDF54 = {
 						CreatedOnToolsVersion = 8.2.1;
-						DevelopmentTeam = 4WDM8E95VU;
+						DevelopmentTeam = 98YALF2T43;
 						LastSwiftMigration = 1020;
 						ProvisioningStyle = Manual;
 						SystemCapabilities = {
@@ -1457,6 +1515,8 @@
 				A239F59C2158C08C00576CBF /* MainInterface.storyboard in Resources */,
 				9A55C158259E785600FA8FD9 /* Assets.xcassets in Resources */,
 				9A5865F025AA944B006719C2 /* SearchPassword.storyboard in Resources */,
+				91D4C3D90D1B2708ED367275 /* iAWriterMonoS-Regular.ttf in Resources */,
+				50163FBFC1D86A26AF0D468C /* iAWriterMonoS-Bold.ttf in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1490,6 +1550,8 @@
 				A2367BA01EF0387000C8FE8B /* Assets.xcassets in Resources */,
 				A267002A1EEC466A00176B8A /* MainInterface.storyboard in Resources */,
 				9A58664825AAAB7E006719C2 /* SearchPassword.storyboard in Resources */,
+				D1A5F0E89466D1EC729DEA4D /* iAWriterMonoS-Regular.ttf in Resources */,
+				C549463813A109269414472A /* iAWriterMonoS-Bold.ttf in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1517,6 +1579,8 @@
 				DCFB779F1E4F40C7008DE471 /* FillPasswordTableViewCell.xib in Resources */,
 				DC037CC01E4ED4E100609409 /* TextViewTableViewCell.xib in Resources */,
 				306D971224091EE7006C0E2E /* SwitchTableViewCell.xib in Resources */,
+				FB818AFACB3D4599AB0336A9 /* iAWriterMonoS-Regular.ttf in Resources */,
+				9EE723AE1DE4F0A04AC448C1 /* iAWriterMonoS-Bold.ttf in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1606,6 +1670,8 @@
 				9A5D06F525A56F0E00FA59D4 /* PasswordTableViewCell.swift in Sources */,
 				9A8F9EBD259EA4C50027CE15 /* PasswordsTableDataSource.swift in Sources */,
 				30697C5321F63E0B0064FCAC /* PasscodeExtensionDisplay.swift in Sources */,
+				8F9F16CF64EDAE30A313B02E /* Theme.swift in Sources */,
+				39612C4A4A969DF7F43E2677 /* PasswordTree.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1663,6 +1729,8 @@
 				30697C4521F63CAB0064FCAC /* Password.swift in Sources */,
 				30697C4421F63CAB0064FCAC /* PasswordEntity.swift in Sources */,
 				30BAC8CD22E3BB9700438475 /* KeyStore.swift in Sources */,
+				62823339A722994501E36A66 /* PGPPassphraseMemory.swift in Sources */,
+				D847786C8F15975FA9F7ED03 /* PGPPassphraseBiometrics.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1712,6 +1780,8 @@
 				30697C4B21F63D460064FCAC /* ExtensionViewController.swift in Sources */,
 				9A58661B25AAA946006719C2 /* PasswordsTableDataSource.swift in Sources */,
 				30B00F5626D597A8004DAC61 /* PasscodeLockViewControllerForExtension.swift in Sources */,
+				EFAA67A05620A8909253B980 /* Theme.swift in Sources */,
+				C8B78EBB3D9ED4FB75C7AC9C /* PasswordTree.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1739,7 +1809,6 @@
 				3066AD6823EE0D6500F65535 /* PGPKeyImporter.swift in Sources */,
 				9AFC87E225B3B5C6008D6060 /* PasswordNavigationDataSource.swift in Sources */,
 				30650E7123F82AF8005CCD5E /* SSHKeyFileImportTableViewController.swift in Sources */,
-				DC193FFA1E49B4430077E0A3 /* AdvancedSettingsTableViewController.swift in Sources */,
 				9AFC880025B51EC3008D6060 /* PasswordEncryptor.swift in Sources */,
 				DCA0499C1E3362F400522E8F /* PGPKeyURLImportTableViewController.swift in Sources */,
 				DC30F83A29BED611001EB12B /* PasswordGeneratorUISlider.swift in Sources */,
@@ -1779,6 +1848,16 @@
 				DC917BD71E2E8231000FDF54 /* AppDelegate.swift in Sources */,
 				DC037CBB1E4DD47B00609409 /* TextFieldTableViewCell.swift in Sources */,
 				DCFB77A91E502FF6008DE471 /* PasswordEditorTableViewController.swift in Sources */,
+				3CC560D266E7857065AD7E32 /* Theme.swift in Sources */,
+				FDEE6D41314AE0CBCBC74B87 /* PasswordTreeDataSource.swift in Sources */,
+				0428AFEE7AD7C90A7AF4CB5E /* DeleteConfirmViewController.swift in Sources */,
+				5C128D2723E85C7343A799F8 /* ThemeAppearance.swift in Sources */,
+				F1079E5E5C90A18A0FBAD0C6 /* PasswordTree.swift in Sources */,
+				A30B82D91B5DBC102CD12FCC /* KeyCommands.swift in Sources */,
+				69D9817B90BCC02124E00863 /* PasswordBrowserViewController.swift in Sources */,
+				8DE1ADEAFFEBAADC1FBD1F33 /* SceneDelegate.swift in Sources */,
+				AC7CFD2F34B161E5EB3EB598 /* EncryptionSettingsTableViewController.swift in Sources */,
+				3A952A70466BF7532ECD9652 /* Toast.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1934,7 +2013,7 @@
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				CODE_SIGN_STYLE = Manual;
 				CURRENT_PROJECT_VERSION = "$(CURRENT_PROJECT_VERSION)";
-				DEVELOPMENT_TEAM = 4WDM8E95VU;
+				DEVELOPMENT_TEAM = 98YALF2T43;
 				FRAMEWORK_SEARCH_PATHS = "$(inherited)";
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				HEADER_SEARCH_PATHS = "$(inherited)";
@@ -1948,9 +2027,9 @@
 				MARKETING_VERSION = "$(MARKETING_VERSION)";
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
-				PRODUCT_BUNDLE_IDENTIFIER = me.mssun.passforios.shortcuts;
+				PRODUCT_BUNDLE_IDENTIFIER = com.tylerpaige.passpicker.shortcuts;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				PROVISIONING_PROFILE_SPECIFIER = "match Development me.mssun.passforios.shortcuts";
+				PROVISIONING_PROFILE_SPECIFIER = "match Development com.tylerpaige.passpicker.shortcuts";
 				SKIP_INSTALL = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -1970,7 +2049,7 @@
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Distribution";
 				CODE_SIGN_STYLE = Manual;
 				CURRENT_PROJECT_VERSION = "$(CURRENT_PROJECT_VERSION)";
-				DEVELOPMENT_TEAM = 4WDM8E95VU;
+				DEVELOPMENT_TEAM = 98YALF2T43;
 				FRAMEWORK_SEARCH_PATHS = "$(inherited)";
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				HEADER_SEARCH_PATHS = "$(inherited)";
@@ -1983,9 +2062,9 @@
 				);
 				MARKETING_VERSION = "$(MARKETING_VERSION)";
 				MTL_FAST_MATH = YES;
-				PRODUCT_BUNDLE_IDENTIFIER = me.mssun.passforios.shortcuts;
+				PRODUCT_BUNDLE_IDENTIFIER = com.tylerpaige.passpicker.shortcuts;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				PROVISIONING_PROFILE_SPECIFIER = "match AppStore me.mssun.passforios.shortcuts";
+				PROVISIONING_PROFILE_SPECIFIER = "match AppStore com.tylerpaige.passpicker.shortcuts";
 				SKIP_INSTALL = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -2048,7 +2127,7 @@
 				MARKETING_VERSION = 0.19.0;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				OTHER_SWIFT_FLAGS = "-D BETA";
-				PRODUCT_BUNDLE_IDENTIFIER = me.mssun.passforiosbeta;
+				PRODUCT_BUNDLE_IDENTIFIER = com.tylerpaige.passpickerbeta;
 				PRODUCT_NAME = "Pass Beta";
 				SDKROOT = iphoneos;
 				STRIP_INSTALLED_PRODUCT = NO;
@@ -2070,7 +2149,7 @@
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Distribution";
 				CURRENT_PROJECT_VERSION = "$(CURRENT_PROJECT_VERSION)";
 				DEFINES_MODULE = NO;
-				DEVELOPMENT_TEAM = 4WDM8E95VU;
+				DEVELOPMENT_TEAM = 98YALF2T43;
 				ENABLE_BITCODE = NO;
 				FRAMEWORK_SEARCH_PATHS = "$(inherited)";
 				HEADER_SEARCH_PATHS = "$(inherited)";
@@ -2087,7 +2166,7 @@
 				OTHER_SWIFT_FLAGS = "$(inherited)";
 				PRODUCT_BUNDLE_IDENTIFIER = "$(PRODUCT_BUNDLE_IDENTIFIER)";
 				PROVISIONING_PROFILE = "ee6e841d-ef77-4f00-b534-d7f1fd25dc1d";
-				PROVISIONING_PROFILE_SPECIFIER = "match AppStore me.mssun.passforiosbeta";
+				PROVISIONING_PROFILE_SPECIFIER = "match AppStore com.tylerpaige.passpickerbeta";
 				STRIP_INSTALLED_PRODUCT = NO;
 				SWIFT_OBJC_BRIDGING_HEADER = "pass/Helpers/Objective-CBridgingHeader.h";
 				SWIFT_VERSION = 5.0;
@@ -2101,7 +2180,7 @@
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
 				CURRENT_PROJECT_VERSION = "$(CURRENT_PROJECT_VERSION)";
-				DEVELOPMENT_TEAM = 4WDM8E95VU;
+				DEVELOPMENT_TEAM = 98YALF2T43;
 				FRAMEWORK_SEARCH_PATHS = "$(inherited)";
 				HEADER_SEARCH_PATHS = "$(inherited)";
 				INFOPLIST_FILE = passTests/Info.plist;
@@ -2132,7 +2211,7 @@
 				CODE_SIGN_ENTITLEMENTS = passExtension/passBetaExtension.entitlements;
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Distribution";
 				CURRENT_PROJECT_VERSION = "$(CURRENT_PROJECT_VERSION)";
-				DEVELOPMENT_TEAM = 4WDM8E95VU;
+				DEVELOPMENT_TEAM = 98YALF2T43;
 				ENABLE_BITCODE = NO;
 				FRAMEWORK_SEARCH_PATHS = "$(inherited)";
 				HEADER_SEARCH_PATHS = "$(inherited)";
@@ -2150,7 +2229,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = "$(PRODUCT_BUNDLE_IDENTIFIER).find-login-action-extension";
 				PRODUCT_NAME = passExtension;
 				PROVISIONING_PROFILE = "cbd86628-6f3e-40f3-b518-20d2330db545";
-				PROVISIONING_PROFILE_SPECIFIER = "match AppStore me.mssun.passforiosbeta.find-login-action-extension";
+				PROVISIONING_PROFILE_SPECIFIER = "match AppStore com.tylerpaige.passpickerbeta.find-login-action-extension";
 				SKIP_INSTALL = YES;
 				STRIP_INSTALLED_PRODUCT = NO;
 				SWIFT_VERSION = 5.0;
@@ -2233,7 +2312,7 @@
 				CODE_SIGN_IDENTITY = "iPhone Distribution";
 				CODE_SIGN_STYLE = Manual;
 				CURRENT_PROJECT_VERSION = "$(CURRENT_PROJECT_VERSION)";
-				DEVELOPMENT_TEAM = 4WDM8E95VU;
+				DEVELOPMENT_TEAM = 98YALF2T43;
 				ENABLE_BITCODE = NO;
 				FRAMEWORK_SEARCH_PATHS = "$(inherited)";
 				GCC_C_LANGUAGE_STANDARD = gnu11;
@@ -2248,9 +2327,9 @@
 				MARKETING_VERSION = "$(MARKETING_VERSION)";
 				MTL_FAST_MATH = YES;
 				OTHER_SWIFT_FLAGS = "$(inherited)";
-				PRODUCT_BUNDLE_IDENTIFIER = "me.mssun.passforiosbeta.auto-fill-credential-extension";
+				PRODUCT_BUNDLE_IDENTIFIER = "com.tylerpaige.passpickerbeta.auto-fill-credential-extension";
 				PRODUCT_NAME = passAutoFillExtension;
-				PROVISIONING_PROFILE_SPECIFIER = "match AppStore me.mssun.passforiosbeta.auto-fill-credential-extension";
+				PROVISIONING_PROFILE_SPECIFIER = "match AppStore com.tylerpaige.passpickerbeta.auto-fill-credential-extension";
 				SKIP_INSTALL = YES;
 				STRIP_INSTALLED_PRODUCT = NO;
 				SWIFT_VERSION = 5.0;
@@ -2271,7 +2350,7 @@
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Distribution";
 				CODE_SIGN_STYLE = Manual;
 				CURRENT_PROJECT_VERSION = "$(CURRENT_PROJECT_VERSION)";
-				DEVELOPMENT_TEAM = 4WDM8E95VU;
+				DEVELOPMENT_TEAM = 98YALF2T43;
 				FRAMEWORK_SEARCH_PATHS = "$(inherited)";
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				HEADER_SEARCH_PATHS = "$(inherited)";
@@ -2285,9 +2364,9 @@
 				MARKETING_VERSION = "$(MARKETING_VERSION)";
 				MTL_FAST_MATH = YES;
 				OTHER_SWIFT_FLAGS = "$(inherited)";
-				PRODUCT_BUNDLE_IDENTIFIER = me.mssun.passforiosbeta.shortcuts;
+				PRODUCT_BUNDLE_IDENTIFIER = com.tylerpaige.passpickerbeta.shortcuts;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				PROVISIONING_PROFILE_SPECIFIER = "match AppStore me.mssun.passforiosbeta.shortcuts";
+				PROVISIONING_PROFILE_SPECIFIER = "match AppStore com.tylerpaige.passpickerbeta.shortcuts";
 				SKIP_INSTALL = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -2306,7 +2385,7 @@
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				CODE_SIGN_STYLE = Manual;
 				CURRENT_PROJECT_VERSION = "$(CURRENT_PROJECT_VERSION)";
-				DEVELOPMENT_TEAM = 4WDM8E95VU;
+				DEVELOPMENT_TEAM = 98YALF2T43;
 				ENABLE_BITCODE = NO;
 				FRAMEWORK_SEARCH_PATHS = "$(inherited)";
 				GCC_C_LANGUAGE_STANDARD = gnu11;
@@ -2321,9 +2400,9 @@
 				MARKETING_VERSION = "$(MARKETING_VERSION)";
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
-				PRODUCT_BUNDLE_IDENTIFIER = "me.mssun.passforios.auto-fill-credential-extension";
+				PRODUCT_BUNDLE_IDENTIFIER = "com.tylerpaige.passpicker.auto-fill-credential-extension";
 				PRODUCT_NAME = passAutoFillExtension;
-				PROVISIONING_PROFILE_SPECIFIER = "match Development me.mssun.passforios.auto-fill-credential-extension";
+				PROVISIONING_PROFILE_SPECIFIER = "match Development com.tylerpaige.passpicker.auto-fill-credential-extension";
 				SKIP_INSTALL = YES;
 				STRIP_INSTALLED_PRODUCT = NO;
 				SWIFT_VERSION = 5.0;
@@ -2343,7 +2422,7 @@
 				CODE_SIGN_IDENTITY = "iPhone Distribution";
 				CODE_SIGN_STYLE = Manual;
 				CURRENT_PROJECT_VERSION = "$(CURRENT_PROJECT_VERSION)";
-				DEVELOPMENT_TEAM = 4WDM8E95VU;
+				DEVELOPMENT_TEAM = 98YALF2T43;
 				ENABLE_BITCODE = NO;
 				FRAMEWORK_SEARCH_PATHS = "$(inherited)";
 				GCC_C_LANGUAGE_STANDARD = gnu11;
@@ -2357,9 +2436,9 @@
 				);
 				MARKETING_VERSION = "$(MARKETING_VERSION)";
 				MTL_FAST_MATH = YES;
-				PRODUCT_BUNDLE_IDENTIFIER = "me.mssun.passforios.auto-fill-credential-extension";
+				PRODUCT_BUNDLE_IDENTIFIER = "com.tylerpaige.passpicker.auto-fill-credential-extension";
 				PRODUCT_NAME = passAutoFillExtension;
-				PROVISIONING_PROFILE_SPECIFIER = "match AppStore me.mssun.passforios.auto-fill-credential-extension";
+				PROVISIONING_PROFILE_SPECIFIER = "match AppStore com.tylerpaige.passpicker.auto-fill-credential-extension";
 				SKIP_INSTALL = YES;
 				STRIP_INSTALLED_PRODUCT = NO;
 				SWIFT_VERSION = 5.0;
@@ -2501,7 +2580,7 @@
 				CODE_SIGN_ENTITLEMENTS = passExtension/passExtension.entitlements;
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				CURRENT_PROJECT_VERSION = "$(CURRENT_PROJECT_VERSION)";
-				DEVELOPMENT_TEAM = 4WDM8E95VU;
+				DEVELOPMENT_TEAM = 98YALF2T43;
 				ENABLE_BITCODE = NO;
 				FRAMEWORK_SEARCH_PATHS = "$(inherited)";
 				HEADER_SEARCH_PATHS = "$(inherited)";
@@ -2518,7 +2597,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = "$(PRODUCT_BUNDLE_IDENTIFIER).find-login-action-extension";
 				PRODUCT_NAME = passExtension;
 				PROVISIONING_PROFILE = "d25c9029-bca6-4b2d-b04e-4abc9d232740";
-				PROVISIONING_PROFILE_SPECIFIER = "match Development me.mssun.passforios.find-login-action-extension";
+				PROVISIONING_PROFILE_SPECIFIER = "match Development com.tylerpaige.passpicker.find-login-action-extension";
 				SKIP_INSTALL = YES;
 				STRIP_INSTALLED_PRODUCT = NO;
 				SWIFT_VERSION = 5.0;
@@ -2537,7 +2616,7 @@
 				CODE_SIGN_ENTITLEMENTS = passExtension/passExtension.entitlements;
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Distribution";
 				CURRENT_PROJECT_VERSION = "$(CURRENT_PROJECT_VERSION)";
-				DEVELOPMENT_TEAM = 4WDM8E95VU;
+				DEVELOPMENT_TEAM = 98YALF2T43;
 				ENABLE_BITCODE = NO;
 				FRAMEWORK_SEARCH_PATHS = "$(inherited)";
 				HEADER_SEARCH_PATHS = "$(inherited)";
@@ -2554,7 +2633,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = "$(PRODUCT_BUNDLE_IDENTIFIER).find-login-action-extension";
 				PRODUCT_NAME = passExtension;
 				PROVISIONING_PROFILE = "cbd86628-6f3e-40f3-b518-20d2330db545";
-				PROVISIONING_PROFILE_SPECIFIER = "match AppStore me.mssun.passforios.find-login-action-extension";
+				PROVISIONING_PROFILE_SPECIFIER = "match AppStore com.tylerpaige.passpicker.find-login-action-extension";
 				SKIP_INSTALL = YES;
 				STRIP_INSTALLED_PRODUCT = NO;
 				SWIFT_VERSION = 5.0;
@@ -2568,7 +2647,7 @@
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
 				CURRENT_PROJECT_VERSION = "$(CURRENT_PROJECT_VERSION)";
-				DEVELOPMENT_TEAM = 4WDM8E95VU;
+				DEVELOPMENT_TEAM = 98YALF2T43;
 				FRAMEWORK_SEARCH_PATHS = "$(inherited)";
 				HEADER_SEARCH_PATHS = "$(inherited)";
 				INFOPLIST_FILE = passTests/Info.plist;
@@ -2593,7 +2672,7 @@
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
 				CURRENT_PROJECT_VERSION = "$(CURRENT_PROJECT_VERSION)";
-				DEVELOPMENT_TEAM = 4WDM8E95VU;
+				DEVELOPMENT_TEAM = 98YALF2T43;
 				FRAMEWORK_SEARCH_PATHS = "$(inherited)";
 				HEADER_SEARCH_PATHS = "$(inherited)";
 				INFOPLIST_FILE = passTests/Info.plist;
@@ -2674,7 +2753,7 @@
 				MARKETING_VERSION = 0.19.0;
 				MTL_ENABLE_DEBUG_INFO = YES;
 				ONLY_ACTIVE_ARCH = YES;
-				PRODUCT_BUNDLE_IDENTIFIER = me.mssun.passforios;
+				PRODUCT_BUNDLE_IDENTIFIER = com.tylerpaige.passpicker;
 				PRODUCT_NAME = Pass;
 				SDKROOT = iphoneos;
 				STRIP_INSTALLED_PRODUCT = NO;
@@ -2741,7 +2820,7 @@
 				LD_RUNPATH_SEARCH_PATHS = "";
 				MARKETING_VERSION = 0.19.0;
 				MTL_ENABLE_DEBUG_INFO = NO;
-				PRODUCT_BUNDLE_IDENTIFIER = me.mssun.passforios;
+				PRODUCT_BUNDLE_IDENTIFIER = com.tylerpaige.passpicker;
 				PRODUCT_NAME = Pass;
 				SDKROOT = iphoneos;
 				STRIP_INSTALLED_PRODUCT = NO;
@@ -2763,7 +2842,7 @@
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				CURRENT_PROJECT_VERSION = "$(CURRENT_PROJECT_VERSION)";
 				DEFINES_MODULE = NO;
-				DEVELOPMENT_TEAM = 4WDM8E95VU;
+				DEVELOPMENT_TEAM = 98YALF2T43;
 				ENABLE_BITCODE = NO;
 				FRAMEWORK_SEARCH_PATHS = "$(inherited)";
 				HEADER_SEARCH_PATHS = "$(inherited)";
@@ -2779,7 +2858,7 @@
 				OTHER_LDFLAGS = "${inherited}";
 				PRODUCT_BUNDLE_IDENTIFIER = "$(PRODUCT_BUNDLE_IDENTIFIER)";
 				PROVISIONING_PROFILE = "3c4f599a-ce77-4184-b4c4-edebf09cba3b";
-				PROVISIONING_PROFILE_SPECIFIER = "match Development me.mssun.passforios";
+				PROVISIONING_PROFILE_SPECIFIER = "match Development com.tylerpaige.passpicker";
 				STRIP_INSTALLED_PRODUCT = NO;
 				SWIFT_OBJC_BRIDGING_HEADER = "pass/Helpers/Objective-CBridgingHeader.h";
 				SWIFT_VERSION = 5.0;
@@ -2796,7 +2875,7 @@
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Distribution";
 				CURRENT_PROJECT_VERSION = "$(CURRENT_PROJECT_VERSION)";
 				DEFINES_MODULE = NO;
-				DEVELOPMENT_TEAM = 4WDM8E95VU;
+				DEVELOPMENT_TEAM = 98YALF2T43;
 				ENABLE_BITCODE = NO;
 				FRAMEWORK_SEARCH_PATHS = "$(inherited)";
 				HEADER_SEARCH_PATHS = "$(inherited)";
@@ -2813,7 +2892,7 @@
 				OTHER_SWIFT_FLAGS = "";
 				PRODUCT_BUNDLE_IDENTIFIER = "$(PRODUCT_BUNDLE_IDENTIFIER)";
 				PROVISIONING_PROFILE = "ee6e841d-ef77-4f00-b534-d7f1fd25dc1d";
-				PROVISIONING_PROFILE_SPECIFIER = "match AppStore me.mssun.passforios";
+				PROVISIONING_PROFILE_SPECIFIER = "match AppStore com.tylerpaige.passpicker";
 				STRIP_INSTALLED_PRODUCT = NO;
 				SWIFT_OBJC_BRIDGING_HEADER = "pass/Helpers/Objective-CBridgingHeader.h";
 				SWIFT_VERSION = 5.0;

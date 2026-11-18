@@ -16,18 +16,43 @@ struct Section {
 
 class PasswordNavigationDataSource: NSObject, UITableViewDataSource {
     var sections: [Section]
-    var filteredSections: [Section]
+    var filteredSections: [Section] {
+        didSet {
+            updateSearchResults()
+        }
+    }
 
-    var isSearchActive = false
+    // While searching, results are one list of full paths rather than alphabetical sections.
+    var isSearchActive = false {
+        didSet {
+            updateSearchResults()
+        }
+    }
+
+    private var searchResults = [PasswordTableEntry]()
+
+    /// Path of the entry open in the browser's entry pane, drawn highlighted.
+    var openPath: String?
     let hideSectionHeaderThreshold = 6
 
     init(entries: [PasswordTableEntry] = []) {
         self.sections = buildSections(from: entries)
         self.filteredSections = sections
+        super.init()
+    }
+
+    private func updateSearchResults() {
+        guard isSearchActive else {
+            searchResults = []
+            return
+        }
+        searchResults = filteredSections
+            .flatMap(\.entries)
+            .sorted { $0.passwordEntity.nameWithDir.localizedStandardCompare($1.passwordEntity.nameWithDir) == .orderedAscending }
     }
 
     func tableView(_: UITableView, numberOfRowsInSection section: Int) -> Int {
-        filteredSections[section].entries.count
+        isSearchActive ? searchResults.count : filteredSections[section].entries.count
     }
 
     func tableView(_: UITableView, titleForHeaderInSection section: Int) -> String? {
@@ -41,12 +66,12 @@ class PasswordNavigationDataSource: NSObject, UITableViewDataSource {
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "passwordTableViewCell", for: indexPath) as! PasswordTableViewCell
         let entry = getPasswordTableEntry(at: indexPath)
-        cell.configure(with: entry)
+        cell.configure(with: entry, isAlternate: indexPath.row.isMultiple(of: 2) == false, showsFullPath: isSearchActive, isOpen: entry.passwordEntity.path == openPath)
         return cell
     }
 
     func numberOfSections(in _: UITableView) -> Int {
-        filteredSections.count
+        isSearchActive ? 1 : filteredSections.count
     }
 
     func sectionIndexTitles(for _: UITableView) -> [String]? {
@@ -58,7 +83,7 @@ class PasswordNavigationDataSource: NSObject, UITableViewDataSource {
     }
 
     func getPasswordTableEntry(at indexPath: IndexPath) -> PasswordTableEntry {
-        filteredSections[indexPath.section].entries[indexPath.row]
+        isSearchActive ? searchResults[indexPath.row] : filteredSections[indexPath.section].entries[indexPath.row]
     }
 
     func showTableEntries(matching text: String) {

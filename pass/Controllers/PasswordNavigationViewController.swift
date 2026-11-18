@@ -30,6 +30,41 @@ class PasswordNavigationViewController: UIViewController {
     // preserve parent path so it can be reloaded even if the parentPasswordEntity is deleted during the update process
     private var parentPath: String?
 
+    // Folders expanded in the tree; kept across reloads so a sync doesn't collapse everything.
+    private var expandedPaths = Set<String>()
+
+    // Set when ⌘E opens an entry, so its detail screen goes straight to the editor.
+    private var editorIntentOnShow: EditPasswordTableViewController.Intent?
+
+    /// Folder for the next new password; unset means the folder on screen.
+    private var newPasswordFolderOverride: String??
+
+    /// Entry open beside the list, highlighted in the tree.
+    var openEntryPath: String? {
+        didSet {
+            dataSource?.openPath = openEntryPath
+            // Reloading drops the selection, which is the keyboard focus.
+            let focused = tableView?.indexPathForSelectedRow
+            tableView?.reloadData()
+            tableView?.selectRow(at: focused, animated: false, scrollPosition: .none)
+        }
+    }
+
+    /// Pass Picker marks the focused row only while the tree has the keyboard.
+    var showsFocus = true {
+        didSet {
+            tableView.visibleCells.forEach(updateFocusHighlight)
+        }
+    }
+
+    private func updateFocusHighlight(_ cell: UITableViewCell) {
+        cell.selectedBackgroundView?.backgroundColor = showsFocus ? Theme.Palette.treeFocused : cell.backgroundColor
+    }
+
+    private var browser: PasswordBrowserViewController? {
+        parent as? PasswordBrowserViewController
+    }
+
     var viewingUnsyncedPasswords = false
     var tapTabBarTime: TimeInterval = 0
     var searchText: String?
@@ -48,21 +83,49 @@ class PasswordNavigationViewController: UIViewController {
 
     lazy var searchBar: UISearchBar = self.searchController.searchBar
 
+    /// Whether the search field is the two-pane browser's own, rather than the search controller's.
+    private var usesEmbeddedSearchBar: Bool {
+        browser != nil
+    }
+
+    private var isSearching: Bool {
+        usesEmbeddedSearchBar ? dataSource?.isSearchActive == true : searchController.isActive
+    }
+
+    private func beginSearch() {
+        if !usesEmbeddedSearchBar {
+            searchController.isActive = true
+        }
+    }
+
+    /// After picking a result: the browser keeps its results listed beside the entry.
+    private func leaveSearch() {
+        if usesEmbeddedSearchBar {
+            searchBar.resignFirstResponder()
+        } else {
+            searchController.isActive = false
+        }
+    }
+
+    /// Clears the search and shows the whole tree again.
+    func endSearch() {
+        if usesEmbeddedSearchBar {
+            searchBar.text = nil
+            searchBar.resignFirstResponder()
+            browser?.searchTextDidChange()
+        } else {
+            searchController.isActive = false
+        }
+        cancelSearch()
+    }
+
     lazy var refreshControl: UIRefreshControl = {
         let refreshControl = UIRefreshControl()
         refreshControl.addTarget(self, action: #selector(handleRefreshControl), for: .valueChanged)
         return refreshControl
     }()
 
-    lazy var addPasswordUIBarButtonItem: UIBarButtonItem = {
-        var addPasswordUIBarButtonItem = UIBarButtonItem()
-        let addPasswordButton = UIButton(type: .system)
-        let plusImage = UIImage(systemName: "plus.circle", withConfiguration: UIImage.SymbolConfiguration(weight: .regular))
-        addPasswordButton.setImage(plusImage, for: .normal)
-        addPasswordButton.addTarget(self, action: #selector(addPasswordAction), for: .touchDown)
-        addPasswordUIBarButtonItem.customView = addPasswordButton
-        return addPasswordUIBarButtonItem
-    }()
+    lazy var addPasswordUIBarButtonItem = UIBarButtonItem(title: "New", style: .plain, target: self, action: #selector(addPasswordAction))
 
     lazy var gestureRecognizer: UILongPressGestureRecognizer = {
         let recognizer = UILongPressGestureRecognizer(target: self, action: #selector(longPressAction))
@@ -73,6 +136,7 @@ class PasswordNavigationViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         searchBar.delegate = self
+        configureAppearance()
         configureTableView(in: parentPasswordEntity)
         configureNotification()
         configureSearchBar()
@@ -112,17 +176,51 @@ class PasswordNavigationViewController: UIViewController {
 
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
+        // Receive hardware keyboard shortcuts.
+        if !isSearching {
+            becomeFirstResponder()
+        }
         if let text = searchText, !text.isEmpty {
             DispatchQueue.main.async {
                 self.searchBar.text = text
-                self.searchController.isActive = true
+                self.beginSearch()
                 self.searchBar.becomeFirstResponder()
             }
         }
     }
 
+    private func configureAppearance() {
+        // In the browser the tree sits on its own rounded card.
+        let background = browser == nil ? Theme.Palette.chrome : .clear
+        view.backgroundColor = background
+        tableView.backgroundColor = background
+        if #available(iOS 15.0, *) {
+            tableView.sectionHeaderTopPadding = 0
+            // The table's own keyboard focus would take ↑/↓ before the tree's shortcuts.
+            tableView.allowsFocus = false
+        }
+        tableView.separatorStyle = .none
+        tableView.sectionIndexColor = Theme.Palette.sidebarText
+        tableView.sectionIndexBackgroundColor = .clear
+
+        // The browser styles its own search field.
+        guard !usesEmbeddedSearchBar else {
+            return
+        }
+        let searchField = searchBar.searchTextField
+        searchField.font = Theme.mono(16)
+        searchField.textColor = Theme.Palette.chromeText
+        searchField.backgroundColor = UIColor.black.withAlphaComponent(0.18)
+        searchField.leftView?.tintColor = Theme.Palette.chromeText.withAlphaComponent(0.6)
+        searchField.attributedPlaceholder = NSAttributedString(
+            string: "search",
+            attributes: [.foregroundColor: Theme.Palette.chromeText.withAlphaComponent(0.6), .font: Theme.mono(16)]
+        )
+        searchBar.tintColor = Theme.Palette.chromeText
+    }
+
     private func configureSearchBar() {
-        if Defaults.isShowFolderOn {
+        if !usesEmbeddedSearchBar {
             searchBar.scopeButtonTitles = SearchBarScope.allCases.map(\.localizedName)
         } else {
             searchBar.scopeButtonTitles = nil
@@ -130,17 +228,26 @@ class PasswordNavigationViewController: UIViewController {
     }
 
     private func configureTableView(in dir: PasswordEntity?) {
-        configureTableViewDataSource(in: dir, isShowFolder: Defaults.isShowFolderOn)
+        configureTableViewDataSource(in: dir, isShowFolder: true, asTree: true)
         tableView.addGestureRecognizer(gestureRecognizer)
         tableView.delegate = self
         tableView.layoutIfNeeded()
         tableView.contentInset.top = 8
         let atribbutedTitle = "LastSynced".localize() + ": \(PasswordStore.shared.lastSyncedTimeString)"
-        refreshControl.attributedTitle = NSAttributedString(string: atribbutedTitle)
+        refreshControl.attributedTitle = NSAttributedString(
+            string: atribbutedTitle,
+            attributes: [.foregroundColor: Theme.Palette.chromeText, .font: Theme.mono(12, relativeTo: .footnote)]
+        )
         tableView.refreshControl = refreshControl
     }
 
-    private func configureTableViewDataSource(in dir: PasswordEntity?, isShowFolder: Bool) {
+    private func configureTableViewDataSource(in dir: PasswordEntity?, isShowFolder: Bool, asTree: Bool = false) {
+        if isShowFolder, asTree {
+            dataSource = PasswordTreeDataSource(parent: dir, expandedPaths: expandedPaths)
+            dataSource?.openPath = openEntryPath
+            tableView.dataSource = dataSource
+            return
+        }
         var passwordTableEntries: [PasswordTableEntry]
         if isShowFolder {
             passwordTableEntries = PasswordStore.shared.fetchPasswordEntityCoreData(parent: dir).compactMap { PasswordTableEntry($0) }
@@ -148,6 +255,7 @@ class PasswordNavigationViewController: UIViewController {
             passwordTableEntries = PasswordStore.shared.fetchPasswordEntityCoreData(withDir: false).compactMap { PasswordTableEntry($0) }
         }
         dataSource = PasswordNavigationDataSource(entries: passwordTableEntries)
+        dataSource?.openPath = openEntryPath
         tableView.dataSource = dataSource
     }
 
@@ -169,7 +277,8 @@ class PasswordNavigationViewController: UIViewController {
 
     private func configureNavigationItem() {
         if isRootViewController() {
-            navigationItem.largeTitleDisplayMode = .automatic
+            // The two-pane browser needs the height a large title would take.
+            navigationItem.largeTitleDisplayMode = browser == nil ? .automatic : .never
             navigationItem.title = "PasswordStore".localize()
         } else {
             navigationItem.largeTitleDisplayMode = .never
@@ -181,7 +290,7 @@ class PasswordNavigationViewController: UIViewController {
 
         navigationItem.hidesSearchBarWhenScrolling = false
         navigationItem.rightBarButtonItem = addPasswordUIBarButtonItem
-        navigationItem.searchController = searchController
+        navigationItem.searchController = usesEmbeddedSearchBar ? nil : searchController
     }
 
     private func configureNavigationBar() {
@@ -207,7 +316,6 @@ class PasswordNavigationViewController: UIViewController {
         // Reset the data table if some password (maybe another one) has been updated.
         notificationCenter.addObserver(self, selector: #selector(actOnPossiblePasswordStoreUpdate), name: .passwordStoreUpdated, object: nil)
         // Reset the data table if the disaply settings have been changed.
-        notificationCenter.addObserver(self, selector: #selector(actOnReloadTableViewRelatedNotification), name: .passwordDisplaySettingChanged, object: nil)
         // Search entrypoint for home screen quick action.
         notificationCenter.addObserver(self, selector: #selector(actOnSearchNotification), name: .passwordSearch, object: nil)
         // A Siri shortcut can change the state of the app in the background. Hence, reload when opening the app.
@@ -230,19 +338,27 @@ class PasswordNavigationViewController: UIViewController {
         guard String(describing: hitView).contains("UINavigationBarContentView") else {
             return
         }
+        showSyncFilterMenu()
+    }
 
+    /// Switches between all passwords and those with changes not yet synced.
+    func showSyncFilterMenu() {
         let alertController = UIAlertController(title: nil, message: nil, preferredStyle: .actionSheet)
         let allAction = UIAlertAction(title: "All Passwords", style: .default) { _ in
             self.configureTableView(in: self.parentPasswordEntity)
             self.tableView.reloadData()
             self.viewingUnsyncedPasswords = false
             self.configureNavigationItem()
+            self.browser?.updateHeader()
         }
         let unsyncedAction = UIAlertAction(title: "Unsynced Passwords", style: .default) { _ in
+            // The tree only holds what is expanded, so list unsynced passwords flat.
+            self.configureTableViewDataSource(in: self.parentPasswordEntity, isShowFolder: false)
             self.dataSource?.showUnsyncedTableEntries()
             self.tableView.reloadData()
             self.viewingUnsyncedPasswords = true
             self.configureNavigationItem()
+            self.browser?.updateHeader()
         }
         let cancelAction = UIAlertAction.cancel()
 
@@ -286,17 +402,39 @@ class PasswordNavigationViewController: UIViewController {
 
 extension PasswordNavigationViewController: UITableViewDelegate {
     func tableView(_: UITableView, didSelectRowAt indexPath: IndexPath) {
-        tableView.deselectRow(at: indexPath, animated: true)
+        if browser == nil {
+            tableView.deselectRow(at: indexPath, animated: true)
+        } else {
+            // As in Pass Picker, the tapped row keeps the tree's focus.
+            becomeFirstResponder()
+        }
         guard let dataSource else {
             return
         }
         let entry = dataSource.getPasswordTableEntry(at: indexPath)
+        if entry.isDir, let treeDataSource = dataSource as? PasswordTreeDataSource {
+            updateTree(treeDataSource) { $0.toggle(at: indexPath.row) }
+            return
+        }
         if entry.isDir {
             showDir(in: entry)
         } else {
             showPasswordDetail(at: entry)
         }
-        searchController.isActive = false
+        leaveSearch()
+    }
+
+    /// Applies a change to the folder tree and redraws it, keeping keyboard focus on the same entry.
+    private func updateTree(_ treeDataSource: PasswordTreeDataSource, change: (PasswordTree) -> Void) {
+        let focusedPath = tableView.indexPathForSelectedRow.map { treeDataSource.tree.rows[$0.row].entry.passwordEntity.path }
+        change(treeDataSource.tree)
+        expandedPaths = treeDataSource.expandedPaths
+        UIView.transition(with: tableView, duration: 0.15, options: .transitionCrossDissolve) {
+            self.tableView.reloadData()
+        }
+        if let focusedPath, let row = treeDataSource.tree.index(ofPath: focusedPath) {
+            tableView.focusRow(at: IndexPath(row: row, section: 0))
+        }
     }
 
     func showDir(in entry: PasswordTableEntry) {
@@ -306,11 +444,20 @@ extension PasswordNavigationViewController: UITableViewDelegate {
     }
 
     func showPasswordDetail(at entry: PasswordTableEntry) {
+        if let browser, shouldPerformSegue(withIdentifier: "showPasswordDetail", sender: nil) {
+            browser.showDetail(for: entry.passwordEntity, editorIntent: editorIntentOnShow)
+            editorIntentOnShow = nil
+            return
+        }
         let segueIdentifier = "showPasswordDetail"
         let sender = entry.passwordEntity
         if shouldPerformSegue(withIdentifier: segueIdentifier, sender: sender) {
             performSegue(withIdentifier: segueIdentifier, sender: sender)
         }
+    }
+
+    func tableView(_: UITableView, willDisplay cell: UITableViewCell, forRowAt _: IndexPath) {
+        updateFocusHighlight(cell)
     }
 
     func tableView(_: UITableView, estimatedHeightForRowAt _: IndexPath) -> CGFloat {
@@ -321,12 +468,31 @@ extension PasswordNavigationViewController: UITableViewDelegate {
         UITableView.automaticDimension
     }
 
-    func tableView(_: UITableView, heightForHeaderInSection _: Int) -> CGFloat {
-        UITableView.automaticDimension
+    func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
+        // The tree and the search results have no section titles.
+        dataSource?.tableView(tableView, titleForHeaderInSection: section) == nil ? 0 : UITableView.automaticDimension
     }
 
-    func tableView(_: UITableView, estimatedHeightForHeaderInSection _: Int) -> CGFloat {
-        UITableView.automaticDimension
+    func tableView(_: UITableView, heightForFooterInSection _: Int) -> CGFloat {
+        0
+    }
+
+    func tableView(_ tableView: UITableView, estimatedHeightForHeaderInSection section: Int) -> CGFloat {
+        self.tableView(tableView, heightForHeaderInSection: section)
+    }
+
+    func tableView(_ tableView: UITableView, willDisplayHeaderView view: UIView, forSection section: Int) {
+        guard let header = view as? UITableViewHeaderFooterView else {
+            return
+        }
+        var content = header.defaultContentConfiguration()
+        content.text = dataSource?.tableView(tableView, titleForHeaderInSection: section)
+        content.textProperties.font = Theme.mono(13, relativeTo: .footnote)
+        content.textProperties.color = Theme.Palette.chromeText
+        header.contentConfiguration = content
+        var background = UIBackgroundConfiguration.listPlainHeaderFooter()
+        background.backgroundColor = .clear
+        header.backgroundConfiguration = background
     }
 }
 
@@ -335,13 +501,16 @@ extension PasswordNavigationViewController {
         if segue.identifier == "showPasswordDetail" {
             if let viewController = segue.destination as? PasswordDetailTableViewController {
                 viewController.passwordEntity = sender as? PasswordEntity
+                viewController.opensEditorWhenReady = editorIntentOnShow
+                editorIntentOnShow = nil
             }
         } else if segue.identifier == "addPasswordSegue" {
             if let navController = segue.destination as? UINavigationController,
                let viewController = navController.topViewController as? AddPasswordTableViewController,
-               let path = parentPasswordEntity?.path {
+               let path = newPasswordFolderOverride ?? parentPasswordEntity?.path {
                 viewController.defaultDirPrefix = "\(path)/"
             }
+            newPasswordFolderOverride = nil
         }
     }
 
@@ -378,14 +547,6 @@ extension PasswordNavigationViewController {
 }
 
 extension PasswordNavigationViewController {
-    @objc
-    func actOnReloadTableViewRelatedNotification() {
-        DispatchQueue.main.async {
-            self.navigationController?.popToRootViewController(animated: true)
-            self.resetViews()
-        }
-    }
-
     @objc
     func actOnPossiblePasswordStoreUpdate() {
         DispatchQueue.main.async {
@@ -444,6 +605,7 @@ extension PasswordNavigationViewController: UISearchBarDelegate {
     }
 
     func searchBarTextDidBeginEditing(_ searchBar: UISearchBar) {
+        browser?.paneDidTakeFocus(self)
         if Defaults.searchDefault == .all {
             searchBar.selectedScopeButtonIndex = SearchBarScope.all.rawValue
         } else {
@@ -455,10 +617,30 @@ extension PasswordNavigationViewController: UISearchBarDelegate {
 
     func searchBar(_: UISearchBar, textDidChange searchText: String) {
         search(matching: searchText)
+        browser?.searchTextDidChange()
     }
 
+    // Return in the search field moves keyboard focus to the first result.
     func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
         searchBar.resignFirstResponder()
+        becomeFirstResponder()
+        if !revealExactPath(searchBar.text ?? "") {
+            focusFirstRow()
+        }
+    }
+
+    /// ↓ in the search field: the first result takes the focus.
+    func focusFirstRow() {
+        searchBar.resignFirstResponder()
+        becomeFirstResponder()
+        tableView.focusRow(at: tableView.indexPath(after: nil))
+    }
+
+    // Leaving the browser's search field empty goes back to the tree, as in Pass Picker.
+    func searchBarTextDidEndEditing(_ searchBar: UISearchBar) {
+        if usesEmbeddedSearchBar, searchBar.text?.isEmpty ?? true, dataSource?.isSearchActive == true {
+            cancelSearch()
+        }
     }
 
     func searchBarCancelButtonClicked(_: UISearchBar) {
@@ -470,6 +652,7 @@ extension PasswordNavigationViewController: UISearchBarDelegate {
         dataSource?.isSearchActive = false
         searchText = nil
         tableView.reloadData()
+        becomeFirstResponder()
     }
 }
 
@@ -548,6 +731,235 @@ extension PasswordNavigationViewController: PasswordAlertPresenter {
                     }
                 }
             }
+        }
+    }
+}
+
+// MARK: - Hardware keyboard shortcuts
+
+extension PasswordNavigationViewController {
+    override var canBecomeFirstResponder: Bool {
+        true
+    }
+
+    @discardableResult
+    override func becomeFirstResponder() -> Bool {
+        let didBecome = super.becomeFirstResponder()
+        if didBecome {
+            browser?.paneDidTakeFocus(self)
+        }
+        return didBecome
+    }
+
+    // Pass Picker's sidebar keys.
+    override var keyCommands: [UIKeyCommand]? {
+        var commands: [UIKeyCommand] = [
+            .shortcut("n", action: #selector(addPasswordAction), modifiers: .command, title: "New Password"),
+            .shortcut("+", action: #selector(addPasswordInFocusedFolder), title: "New Password Here"),
+            .shortcut("=", action: #selector(addPasswordInFocusedFolder), modifiers: .shift),
+            .shortcut("e", action: #selector(editFocusedEntry), modifiers: .command, title: "Edit Password"),
+            .shortcut("r", action: #selector(renameFocusedEntry), title: "Rename"),
+            .shortcut(UIKeyCommand.inputDownArrow, action: #selector(focusNextRow)),
+            .shortcut(UIKeyCommand.inputUpArrow, action: #selector(focusPreviousRow)),
+            .shortcut("j", action: #selector(focusNextRow)),
+            .shortcut("k", action: #selector(focusPreviousRow)),
+            .shortcut(UIKeyCommand.inputRightArrow, action: #selector(expandFocusedRow), title: "Expand Folder"),
+            .shortcut(UIKeyCommand.inputLeftArrow, action: #selector(collapseFocusedRow), title: "Collapse Folder"),
+            .shortcut(UIKeyCommand.inputRightArrow, action: #selector(expandFocusedLevel), modifiers: .shift, title: "Expand Level"),
+            .shortcut(UIKeyCommand.inputLeftArrow, action: #selector(collapseFocusedLevel), modifiers: .shift, title: "Collapse Level"),
+            .shortcut(UIKeyCommand.inputRightArrow, action: #selector(expandAllFolders), modifiers: [.command, .shift], title: "Expand All"),
+            .shortcut(UIKeyCommand.inputLeftArrow, action: #selector(collapseAllFolders), modifiers: [.command, .shift], title: "Collapse All"),
+            .shortcut("\r", action: #selector(openFocusedRow), title: "Open"),
+        ]
+        if browser?.detailViewController != nil {
+            commands.append(.shortcut("d", action: #selector(deleteOpenEntry), modifiers: .command, title: "Delete Password"))
+        }
+        if browser == nil {
+            // In the browser, ⌘F belongs to the browser so it works from either pane.
+            commands.append(.shortcut("f", action: #selector(focusSearch), modifiers: .command, title: "Search"))
+            commands.append(.shortcut(UIKeyCommand.inputEscape, action: #selector(escape)))
+        }
+        return commands
+    }
+
+    /// Folder a new password goes in: the focused folder, the focused entry's folder, or the folder on screen.
+    private var newPasswordFolderPath: String? {
+        guard let indexPath = tableView.indexPathForSelectedRow, let dataSource else {
+            return parentPasswordEntity?.path
+        }
+        let entity = dataSource.getPasswordTableEntry(at: indexPath).passwordEntity
+        return entity.isDir ? entity.path : entity.parent?.path
+    }
+
+    @objc
+    func focusSearch() {
+        beginSearch()
+        DispatchQueue.main.async {
+            self.searchBar.becomeFirstResponder()
+        }
+    }
+
+    @objc
+    private func focusNextRow() {
+        tableView.focusRow(at: tableView.indexPath(after: tableView.indexPathForSelectedRow))
+    }
+
+    @objc
+    private func focusPreviousRow() {
+        tableView.focusRow(at: tableView.indexPath(before: tableView.indexPathForSelectedRow))
+    }
+
+    @objc
+    private func openFocusedRow() {
+        guard let indexPath = tableView.indexPathForSelectedRow else {
+            return
+        }
+        let isFolderInTree = dataSource is PasswordTreeDataSource && dataSource?.getPasswordTableEntry(at: indexPath).isDir == true
+        tableView(tableView, didSelectRowAt: indexPath)
+        if isFolderInTree {
+            // didSelectRow clears the selection; keep focus on the folder that was toggled.
+            tableView.focusRow(at: indexPath)
+        }
+    }
+
+    /// The focused row, when it is a password rather than a folder.
+    private var focusedEntry: PasswordTableEntry? {
+        guard let indexPath = tableView.indexPathForSelectedRow, let entry = dataSource?.getPasswordTableEntry(at: indexPath), !entry.isDir else {
+            return nil
+        }
+        return entry
+    }
+
+    // ⌘E: the focused password, else the one open beside the list.
+    @objc
+    private func editFocusedEntry() {
+        guard let entry = focusedEntry else {
+            browser?.detailViewController?.openEditor(.edit)
+            return
+        }
+        open(entry, editorIntent: .edit)
+    }
+
+    // R: rename the focused password in the editor's name field.
+    @objc
+    private func renameFocusedEntry() {
+        if let entry = focusedEntry {
+            open(entry, editorIntent: .rename)
+        }
+    }
+
+    private func open(_ entry: PasswordTableEntry, editorIntent: EditPasswordTableViewController.Intent) {
+        editorIntentOnShow = editorIntent
+        showPasswordDetail(at: entry)
+        leaveSearch()
+    }
+
+    // +: a new password in the focused folder, or beside the focused password.
+    @objc
+    private func addPasswordInFocusedFolder() {
+        newPasswordFolderOverride = .some(newPasswordFolderPath)
+        addPasswordAction(nil)
+    }
+
+    @objc
+    private func deleteOpenEntry() {
+        browser?.detailViewController?.confirmDelete()
+    }
+
+    @objc
+    private func expandFocusedLevel() {
+        if let treeDataSource = dataSource as? PasswordTreeDataSource, let indexPath = tableView.indexPathForSelectedRow {
+            updateTree(treeDataSource) { $0.expandLevel(at: indexPath.row) }
+        }
+    }
+
+    @objc
+    private func collapseFocusedLevel() {
+        if let treeDataSource = dataSource as? PasswordTreeDataSource, let indexPath = tableView.indexPathForSelectedRow {
+            updateTree(treeDataSource) { $0.collapseLevel(at: indexPath.row) }
+        }
+    }
+
+    /// Search Return on an exact path (e.g. `finance/tax-portal`) shows that row in the tree, as in Pass Picker.
+    func revealExactPath(_ query: String) -> Bool {
+        let path = query.trimmingCharacters(in: CharacterSet(charactersIn: "/ ")).replacingOccurrences(of: ".gpg", with: "")
+        guard !path.isEmpty, let entity = PasswordStore.shared.fetchPasswordEntity(with: path) ?? PasswordStore.shared.fetchPasswordEntity(with: path + ".gpg") else {
+            return false
+        }
+        endSearch()
+        guard let treeDataSource = dataSource as? PasswordTreeDataSource else {
+            return true
+        }
+        updateTree(treeDataSource) { $0.reveal(path: entity.path) }
+        tableView.focusRow(at: treeDataSource.tree.index(ofPath: entity.path).map { IndexPath(row: $0, section: 0) })
+        return true
+    }
+
+    // →: expand the focused folder, or step into it if already open.
+    @objc
+    private func expandFocusedRow() {
+        guard let indexPath = tableView.indexPathForSelectedRow else {
+            return
+        }
+        guard let treeDataSource = dataSource as? PasswordTreeDataSource else {
+            if dataSource?.getPasswordTableEntry(at: indexPath).isDir == true {
+                openFocusedRow()
+            }
+            return
+        }
+        let row = treeDataSource.tree.rows[indexPath.row]
+        guard row.entry.isDir else {
+            return
+        }
+        if !treeDataSource.tree.isExpanded(row) {
+            updateTree(treeDataSource) { $0.toggle(at: indexPath.row) }
+        } else if indexPath.row + 1 < treeDataSource.tree.rows.count, treeDataSource.tree.rows[indexPath.row + 1].depth > row.depth {
+            tableView.focusRow(at: IndexPath(row: indexPath.row + 1, section: 0))
+        }
+    }
+
+    // ←: collapse the focused folder, or move focus to its parent.
+    @objc
+    private func collapseFocusedRow() {
+        guard let treeDataSource = dataSource as? PasswordTreeDataSource else {
+            if !isRootViewController() {
+                navigationController?.popViewController(animated: true)
+            }
+            return
+        }
+        guard let indexPath = tableView.indexPathForSelectedRow else {
+            return
+        }
+        let row = treeDataSource.tree.rows[indexPath.row]
+        if row.entry.isDir, treeDataSource.tree.isExpanded(row) {
+            updateTree(treeDataSource) { $0.toggle(at: indexPath.row) }
+        } else if let parentPath = row.parentPath, let parentRow = treeDataSource.tree.index(ofPath: parentPath) {
+            tableView.focusRow(at: IndexPath(row: parentRow, section: 0))
+        }
+    }
+
+    @objc
+    private func expandAllFolders() {
+        if let treeDataSource = dataSource as? PasswordTreeDataSource {
+            updateTree(treeDataSource) { $0.expandAll() }
+        }
+    }
+
+    @objc
+    private func collapseAllFolders() {
+        if let treeDataSource = dataSource as? PasswordTreeDataSource {
+            updateTree(treeDataSource) { $0.collapseAll() }
+        }
+    }
+
+    @objc
+    private func escape() {
+        if isSearching {
+            endSearch()
+        } else if let indexPath = tableView.indexPathForSelectedRow {
+            tableView.deselectRow(at: indexPath, animated: false)
+        } else if !isRootViewController() {
+            navigationController?.popViewController(animated: true)
         }
     }
 }

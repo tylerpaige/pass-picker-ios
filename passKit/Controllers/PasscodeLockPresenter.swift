@@ -28,7 +28,12 @@ open class PasscodeLockPresenter {
 
         // new window
         mainWindow?.endEditing(true)
-        passcodeLockWindow = UIWindow(frame: mainWindow!.frame)
+        // Under the scene lifecycle a window only shows when attached to its scene.
+        if let windowScene = mainWindow?.windowScene {
+            passcodeLockWindow = UIWindow(windowScene: windowScene)
+        } else {
+            passcodeLockWindow = UIWindow(frame: mainWindow!.frame)
+        }
         moveWindowsToFront(windowLevel: windowLevel)
         passcodeLockWindow?.isHidden = false
 

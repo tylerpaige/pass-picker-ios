@@ -60,10 +60,14 @@ public extension DefaultsKeys {
     var isHideUnknownOn: DefaultsKey<Bool> { DefaultsKey("isHideUnknownOn", defaultValue: false) }
     var isHideOTPOn: DefaultsKey<Bool> { DefaultsKey("isHideOTPOn", defaultValue: false) }
     var isRememberPGPPassphraseOn: DefaultsKey<Bool> { DefaultsKey("isRememberPGPPassphraseOn", defaultValue: false) }
+    var pgpPassphraseDuration: DefaultsKey<Int> { DefaultsKey("pgpPassphraseDuration", defaultValue: 10 * 60) }
+    var isBiometricPGPUnlockOn: DefaultsKey<Bool> { DefaultsKey("isBiometricPGPUnlockOn", defaultValue: false) }
+    // The editor's generator, as in Pass Picker.
+    var passwordGeneratorLength: DefaultsKey<Int> { DefaultsKey("passwordGeneratorLength", defaultValue: 12) }
+    var passwordGeneratorSpecialCharacters: DefaultsKey<String> { DefaultsKey("passwordGeneratorSpecialCharacters", defaultValue: "!@#$%^&*()_") }
+    var pgpPassphraseLastUsed: DefaultsKey<Date?> { DefaultsKey("pgpPassphraseLastUsed") }
     var isRememberGitCredentialPassphraseOn: DefaultsKey<Bool> { DefaultsKey("isRememberGitCredentialPassphraseOn", defaultValue: false) }
     var isEnableGPGIDOn: DefaultsKey<Bool> { DefaultsKey("isEnableGPGIDOn", defaultValue: false) }
-    var isShowFolderOn: DefaultsKey<Bool> { DefaultsKey("isShowFolderOn", defaultValue: true) }
-    var isHidePasswordImagesOn: DefaultsKey<Bool> { DefaultsKey("isHidePasswordImagesOn", defaultValue: false) }
     var searchDefault: DefaultsKey<SearchBarScope?> { DefaultsKey("searchDefault", defaultValue: .all) }
     var passwordGenerator: DefaultsKey<PasswordGenerator> { DefaultsKey("passwordGenerator", defaultValue: PasswordGenerator()) }
 

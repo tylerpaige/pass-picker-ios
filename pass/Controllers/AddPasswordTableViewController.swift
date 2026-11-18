@@ -17,6 +17,12 @@ class AddPasswordTableViewController: PasswordEditorTableViewController {
         tableData[0][0][PasswordEditorCellKey.content] = defaultDirPrefix
     }
 
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        // Start typing the entry path right away, as in Pass Picker.
+        nameCell?.contentTextField.becomeFirstResponder()
+    }
+
     override func shouldPerformSegue(withIdentifier identifier: String, sender _: Any?) -> Bool {
         if identifier == "saveAddPasswordSegue" {
             // check PGP key

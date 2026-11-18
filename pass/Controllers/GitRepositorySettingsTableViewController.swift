@@ -22,7 +22,33 @@ class GitRepositorySettingsTableViewController: UITableViewController, PasswordA
 
     // MARK: - Properties
 
-    private var sshLabel: UILabel?
+    /// Rows revealed under "SSH Key": import options while no key is set, else a button to unset it.
+    private enum SSHKeyRow {
+        case importFromURL, importArmor, importFile, importFileSharing, unset
+    }
+
+    /// Rows added below the storyboard's sections: what was in General and Advanced about the repository.
+    private enum RepositoryRow {
+        case about, gitSignature, rememberCredentials, discardChanges
+    }
+
+    private let repositorySections: [(title: String?, rows: [RepositoryRow])] = [
+        (nil, [.about, .gitSignature, .rememberCredentials]),
+        (nil, [.discardChanges]),
+    ]
+
+    private lazy var rememberCredentialsSwitch: UISwitch = {
+        let uiSwitch = UISwitch()
+        uiSwitch.onTintColor = Theme.Palette.datumBackground
+        uiSwitch.addTarget(self, action: #selector(toggleRememberCredentials), for: .valueChanged)
+        return uiSwitch
+    }()
+
+    private var showsSSHKeyOptions = false
+    /// The SSH key rows the table currently shows; `sshKeyRows` is what it should show.
+    private var displayedSSHKeyRows = [SSHKeyRow]()
+    private var authenticationSection: Int?
+    private var sshKeyRowIndex = 0
     private let passwordStore = PasswordStore.shared
     private let keychain = AppKeychain.shared
     private var gitCredential: GitCredential {
@@ -63,14 +89,60 @@ class GitRepositorySettingsTableViewController: UITableViewController, PasswordA
         gitURLTextField.text = gitURL.absoluteString
         usernameTextField.text = gitUsername
         branchNameTextField.text = gitBranchName
-        sshLabel = authSSHKeyCell.subviews[0].subviews[0] as? UILabel
-        authSSHKeyCell.accessoryType = .detailButton
+        authSSHKeyCell.accessoryType = .none
+        locateSSHKeyCell()
+        displayedSSHKeyRows = sshKeyRows
+    }
+
+    // The static table's "SSH Key" cell; its options are inserted right after it.
+    private func locateSSHKeyCell() {
+        for section in 0 ..< super.numberOfSections(in: tableView) {
+            for row in 0 ..< super.tableView(tableView, numberOfRowsInSection: section)
+                where super.tableView(tableView, cellForRowAt: IndexPath(row: row, section: section)) === authSSHKeyCell {
+                authenticationSection = section
+                sshKeyRowIndex = row
+            }
+        }
+    }
+
+    private var hasSSHKey: Bool {
+        keychain.contains(key: SSHKey.PRIVATE.getKeychainKey())
+    }
+
+    private var sshKeyRows: [SSHKeyRow] {
+        guard showsSSHKeyOptions || gitAuthenticationMethod == .key else {
+            return []
+        }
+        return hasSSHKey ? [.unset] : [.importFromURL, .importArmor, .importFile, .importFileSharing]
+    }
+
+    private func sshKeyRow(at indexPath: IndexPath) -> SSHKeyRow? {
+        guard indexPath.section == authenticationSection else {
+            return nil
+        }
+        let offset = indexPath.row - sshKeyRowIndex - 1
+        return displayedSSHKeyRows.indices.contains(offset) ? displayedSSHKeyRows[offset] : nil
+    }
+
+    // Swaps the rows under "SSH Key". Reloading the section would drop the storyboard's static cells.
+    private func reloadAuthenticationSection() {
+        updateAuthenticationMethodCheckView(for: gitAuthenticationMethod)
+        guard let authenticationSection, displayedSSHKeyRows != sshKeyRows else {
+            return
+        }
+        let indexPaths = { (rows: [SSHKeyRow]) in
+            rows.indices.map { IndexPath(row: self.sshKeyRowIndex + 1 + $0, section: authenticationSection) }
+        }
+        let removed = indexPaths(displayedSSHKeyRows)
+        displayedSSHKeyRows = sshKeyRows
+        tableView.performBatchUpdates {
+            tableView.deleteRows(at: removed, with: .fade)
+            tableView.insertRows(at: indexPaths(displayedSSHKeyRows), with: .fade)
+        }
     }
 
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        // Grey out ssh option if ssh_key is not present.
-        sshLabel?.isEnabled = keychain.contains(key: SSHKey.PRIVATE.getKeychainKey())
         updateAuthenticationMethodCheckView(for: gitAuthenticationMethod)
     }
 
@@ -79,30 +151,246 @@ class GitRepositorySettingsTableViewController: UITableViewController, PasswordA
         view.endEditing(true)
     }
 
+    // MARK: - Repository rows
+
+    private var storyboardSectionCount: Int {
+        super.numberOfSections(in: tableView)
+    }
+
+    private func repositoryRow(at indexPath: IndexPath) -> RepositoryRow? {
+        let section = indexPath.section - storyboardSectionCount
+        return repositorySections.indices.contains(section) ? repositorySections[section].rows[indexPath.row] : nil
+    }
+
+    override func numberOfSections(in tableView: UITableView) -> Int {
+        super.numberOfSections(in: tableView) + repositorySections.count
+    }
+
+    override func tableView(_ tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
+        section < storyboardSectionCount ? super.tableView(tableView, titleForHeaderInSection: section) : repositorySections[section - storyboardSectionCount].title
+    }
+
+    override func tableView(_ tableView: UITableView, titleForFooterInSection section: Int) -> String? {
+        section < storyboardSectionCount ? super.tableView(tableView, titleForFooterInSection: section) : nil
+    }
+
+    override func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
+        section < storyboardSectionCount ? super.tableView(tableView, viewForHeaderInSection: section) : nil
+    }
+
+    override func tableView(_ tableView: UITableView, viewForFooterInSection section: Int) -> UIView? {
+        section < storyboardSectionCount ? super.tableView(tableView, viewForFooterInSection: section) : nil
+    }
+
+    override func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
+        section < storyboardSectionCount ? super.tableView(tableView, heightForHeaderInSection: section) : UITableView.automaticDimension
+    }
+
+    override func tableView(_ tableView: UITableView, heightForFooterInSection section: Int) -> CGFloat {
+        section < storyboardSectionCount ? super.tableView(tableView, heightForFooterInSection: section) : UITableView.automaticDimension
+    }
+
+    private func repositoryCell(for row: RepositoryRow) -> UITableViewCell {
+        let cell = UITableViewCell(style: .value1, reuseIdentifier: nil)
+        cell.textLabel?.font = UIFont.preferredFont(forTextStyle: .body)
+        cell.textLabel?.textColor = Theme.Palette.surfaceText
+        cell.detailTextLabel?.font = UIFont.preferredFont(forTextStyle: .footnote)
+        cell.detailTextLabel?.textColor = Theme.Palette.surfaceMuted
+        switch row {
+        case .about:
+            cell.textLabel?.text = "About"
+            cell.accessoryType = .disclosureIndicator
+        case .gitSignature:
+            cell.textLabel?.text = "Git Signature"
+            cell.detailTextLabel?.text = gitSignatureSummary
+            cell.accessoryType = .disclosureIndicator
+        case .rememberCredentials:
+            cell.textLabel?.text = "RememberGitCredentialPassphrase".localize()
+            cell.textLabel?.numberOfLines = 0
+            rememberCredentialsSwitch.isOn = Defaults.isRememberGitCredentialPassphraseOn
+            cell.accessoryView = rememberCredentialsSwitch
+            cell.selectionStyle = .none
+        case .discardChanges:
+            cell.textLabel?.text = "DiscardAllLocalChanges".localize()
+            cell.textLabel?.textColor = Theme.Palette.danger
+        }
+        return cell
+    }
+
+    private var gitSignatureSummary: String {
+        guard Defaults.gitSignatureName != nil || Defaults.gitSignatureEmail != nil else {
+            return "NotSet".localize()
+        }
+        let signature = passwordStore.gitSignatureForNow
+        return "\(signature?.name ?? "") <\(signature?.email ?? "")>"
+    }
+
+    private func didSelect(_ row: RepositoryRow) {
+        switch row {
+        case .about:
+            let about = UIStoryboard(name: "Main", bundle: nil).instantiateViewController(withIdentifier: "aboutRepository")
+            about.navigationItem.title = "About"
+            navigationController?.pushViewController(about, animated: true)
+        case .gitSignature:
+            let signature = UIStoryboard(name: "Main", bundle: nil).instantiateViewController(withIdentifier: "gitSignature")
+            navigationController?.pushViewController(signature, animated: true)
+        case .rememberCredentials:
+            break
+        case .discardChanges:
+            confirmDiscardChanges()
+        }
+    }
+
+    private func confirmDiscardChanges() {
+        let alert = UIAlertController(title: "DiscardAllLocalChanges?".localize(), message: "DiscardExplanation.".localize(), preferredStyle: .alert)
+        alert.addAction(
+            UIAlertAction(title: "DiscardAllLocalChanges".localize(), style: .destructive) { [unowned self] _ in
+                SVProgressHUD.show(withStatus: "Resetting...".localize())
+                do {
+                    let numberDiscarded = try passwordStore.reset()
+                    SVProgressHUD.showSuccess(withStatus: "DiscardedCommits(%d)".localize(numberDiscarded))
+                    SVProgressHUD.dismiss(withDelay: 1)
+                } catch {
+                    SVProgressHUD.dismiss()
+                    Utils.alert(title: "Error".localize(), message: error.localizedDescription, controller: self, completion: nil)
+                }
+            }
+        )
+        alert.addAction(UIAlertAction.dismiss())
+        present(alert, animated: true)
+    }
+
+    @objc
+    private func toggleRememberCredentials() {
+        Defaults.isRememberGitCredentialPassphraseOn = rememberCredentialsSwitch.isOn
+        if !rememberCredentialsSwitch.isOn {
+            passwordStore.gitSSHPrivateKeyPassphrase = nil
+            passwordStore.gitPassword = nil
+        }
+    }
+
+    // The Git Signature screen unwinds here when saved.
+    @IBAction
+    private func saveGitConfigSetting(segue: UIStoryboardSegue) {
+        guard let controller = segue.source as? GitConfigSettingsTableViewController,
+              let name = controller.nameTextField.text, let email = controller.emailTextField.text else {
+            return
+        }
+        Defaults.gitSignatureName = name.isEmpty ? nil : name
+        Defaults.gitSignatureEmail = email.isEmpty ? nil : email
+        // Only this row: reloading the storyboard's sections would blank their cells.
+        tableView.reloadRows(at: [IndexPath(row: 1, section: storyboardSectionCount)], with: .none)
+    }
+
     // MARK: - UITableViewController Override
 
     override func tableView(_ tableView: UITableView, accessoryButtonTappedForRowWith indexPath: IndexPath) {
-        let cell = tableView.cellForRow(at: indexPath)
-        if cell == authSSHKeyCell {
-            showSSHKeyActionSheet()
-        } else if cell == gitURLCell {
+        if tableView.cellForRow(at: indexPath) == gitURLCell {
             showGitURLFormatHelp()
         }
     }
 
+    override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        guard section < storyboardSectionCount else {
+            return repositorySections[section - storyboardSectionCount].rows.count
+        }
+        return super.tableView(tableView, numberOfRowsInSection: section) + (section == authenticationSection ? displayedSSHKeyRows.count : 0)
+    }
+
+    override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        if let row = repositoryRow(at: indexPath) {
+            return repositoryCell(for: row)
+        }
+        guard let row = sshKeyRow(at: indexPath) else {
+            return super.tableView(tableView, cellForRowAt: staticIndexPath(for: indexPath))
+        }
+        let cell = UITableViewCell(style: .default, reuseIdentifier: nil)
+        cell.textLabel?.font = UIFont.preferredFont(forTextStyle: .body)
+        cell.textLabel?.textColor = Theme.Palette.surfaceText
+        cell.indentationLevel = 1
+        cell.indentationWidth = 16
+        cell.accessoryType = .disclosureIndicator
+        switch row {
+        case .importFromURL:
+            cell.textLabel?.text = SSHKeyURLImportTableViewController.label
+        case .importArmor:
+            cell.textLabel?.text = SSHKeyArmorImportTableViewController.label
+        case .importFile:
+            cell.textLabel?.text = SSHKeyFileImportTableViewController.label
+        case .importFileSharing:
+            cell.textLabel?.text = "\(Self.label) (\((isReadyToUse() ? "Import" : "Tips").localize()))"
+        case .unset:
+            cell.textLabel?.text = "Unset SSH Key"
+            cell.textLabel?.textColor = Theme.Palette.danger
+            cell.accessoryType = .none
+        }
+        return cell
+    }
+
+    // Rows after the inserted SSH key options map back to the storyboard's static rows.
+    private func staticIndexPath(for indexPath: IndexPath) -> IndexPath {
+        guard indexPath.section == authenticationSection, indexPath.row > sshKeyRowIndex else {
+            return indexPath
+        }
+        return IndexPath(row: indexPath.row - displayedSSHKeyRows.count, section: indexPath.section)
+    }
+
+    override func tableView(_ tableView: UITableView, indentationLevelForRowAt indexPath: IndexPath) -> Int {
+        if repositoryRow(at: indexPath) != nil {
+            return 0
+        }
+        return sshKeyRow(at: indexPath) == nil ? super.tableView(tableView, indentationLevelForRowAt: staticIndexPath(for: indexPath)) : 1
+    }
+
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        tableView.deselectRow(at: indexPath, animated: true)
+        if let row = repositoryRow(at: indexPath) {
+            didSelect(row)
+            return
+        }
+        if let row = sshKeyRow(at: indexPath) {
+            didSelect(row)
+            return
+        }
         let cell = tableView.cellForRow(at: indexPath)
         if cell == authPasswordCell {
+            showsSSHKeyOptions = false
             gitAuthenticationMethod = .password
+            reloadAuthenticationSection()
         } else if cell == authSSHKeyCell {
-            if !keychain.contains(key: SSHKey.PRIVATE.getKeychainKey()) {
-                Utils.alert(title: "CannotSelectSshKey".localize(), message: "PleaseSetupSshKeyFirst.".localize(), controller: self)
-                gitAuthenticationMethod = .password
-            } else {
+            // Choosing SSH Key reveals its options; it becomes the method once a key is set.
+            showsSSHKeyOptions = true
+            if hasSSHKey {
                 gitAuthenticationMethod = .key
             }
+            reloadAuthenticationSection()
         }
-        tableView.deselectRow(at: indexPath, animated: true)
+    }
+
+    private func didSelect(_ row: SSHKeyRow) {
+        switch row {
+        case .importFromURL:
+            performSegue(withIdentifier: "setGitSSHKeyByURLSegue", sender: self)
+        case .importArmor:
+            performSegue(withIdentifier: "setGitSSHKeyByArmorSegue", sender: self)
+        case .importFile:
+            performSegue(withIdentifier: "setGitSSHKeyByFileSegue", sender: self)
+        case .importFileSharing:
+            if isReadyToUse() {
+                importSSHKey(using: self)
+            } else {
+                Utils.alert(title: "Tips".localize(), message: "SshCopyPrivateKeyToPass.".localize(), controller: self)
+            }
+        case .unset:
+            let alert = UIAlertController.removeConfirmationAlert(title: "Unset SSH Key", message: "") { _ in
+                self.passwordStore.removeGitSSHKeys()
+                Defaults.gitSSHKeySource = nil
+                self.gitAuthenticationMethod = .password
+                self.showsSSHKeyOptions = true
+                self.reloadAuthenticationSection()
+            }
+            present(alert, animated: true)
+        }
     }
 
     override func tableView(_: UITableView, heightForRowAt _: IndexPath) -> CGFloat {
@@ -268,7 +556,7 @@ class GitRepositorySettingsTableViewController: UITableViewController, PasswordA
                     SVProgressHUD.dismiss(withDelay: 1)
                     Defaults.gitSSHKeySource = type(of: keyImporter).keySource
                     self.gitAuthenticationMethod = .key
-                    self.sshLabel?.isEnabled = true
+                    self.reloadAuthenticationSection()
                 }
             } catch {
                 DispatchQueue.main.async {
@@ -280,64 +568,14 @@ class GitRepositorySettingsTableViewController: UITableViewController, PasswordA
 
     // MARK: - Helper Functions
 
-    private func showSSHKeyActionSheet() {
-        let optionMenu = UIAlertController(title: nil, message: nil, preferredStyle: .actionSheet)
-        optionMenu.addAction(
-            UIAlertAction(title: SSHKeyURLImportTableViewController.menuLabel, style: .default) { _ in
-                self.performSegue(withIdentifier: "setGitSSHKeyByURLSegue", sender: self)
-            }
-        )
-        optionMenu.addAction(
-            UIAlertAction(title: SSHKeyArmorImportTableViewController.menuLabel, style: .default) { _ in
-                self.performSegue(withIdentifier: "setGitSSHKeyByArmorSegue", sender: self)
-            }
-        )
-        optionMenu.addAction(
-            UIAlertAction(title: SSHKeyFileImportTableViewController.menuLabel, style: .default) { _ in
-                self.performSegue(withIdentifier: "setGitSSHKeyByFileSegue", sender: self)
-            }
-        )
-
-        if isReadyToUse() {
-            optionMenu.addAction(
-                UIAlertAction(title: "\(Self.menuLabel) (\("Import".localize()))", style: .default) { _ in
-                    self.importSSHKey(using: self)
-                }
-            )
-        } else {
-            optionMenu.addAction(
-                UIAlertAction(title: "\(Self.menuLabel) (\("Tips".localize()))", style: .default) { _ in
-                    let title = "Tips".localize()
-                    let message = "SshCopyPrivateKeyToPass.".localize()
-                    Utils.alert(title: title, message: message, controller: self)
-                }
-            )
-        }
-
-        if Defaults.gitSSHKeySource != nil {
-            optionMenu.addAction(
-                UIAlertAction(title: "RemoveSShKeys".localize(), style: .destructive) { _ in
-                    let alert = UIAlertController.removeConfirmationAlert(title: "RemoveSShKeys".localize(), message: "") { _ in
-                        self.passwordStore.removeGitSSHKeys()
-                        Defaults.gitSSHKeySource = nil
-                        self.sshLabel?.isEnabled = false
-                        self.gitAuthenticationMethod = .password
-                    }
-                    self.present(alert, animated: true, completion: nil)
-                }
-            )
-        }
-        optionMenu.addAction(UIAlertAction.cancel())
-        optionMenu.popoverPresentationController?.sourceView = authSSHKeyCell
-        optionMenu.popoverPresentationController?.sourceRect = authSSHKeyCell.bounds
-        present(optionMenu, animated: true)
-    }
-
     private func updateAuthenticationMethodCheckView(for method: GitAuthenticationMethod) {
-        let passwordCheckView = authPasswordCell.viewWithTag(1001)
-        let sshKeyCheckView = authSSHKeyCell.viewWithTag(1001)
+        let passwordCheckView = authPasswordCell.viewWithTag(1001) as? UILabel
+        let sshKeyCheckView = authSSHKeyCell.viewWithTag(1001) as? UILabel
+        passwordCheckView?.textColor = Theme.Palette.surfaceText
+        sshKeyCheckView?.textColor = Theme.Palette.surfaceText
 
-        switch method {
+        // Choosing SSH Key checks it while its key is still being set up.
+        switch showsSSHKeyOptions ? .key : method {
         case .password:
             passwordCheckView?.isHidden = false
             sshKeyCheckView?.isHidden = true

@@ -20,10 +20,7 @@ class PasswordManager {
     func providePasswordPasteboard(with passwordPath: String) {
         decryptPassword(in: viewController, with: passwordPath) { password in
             SecurePasteboard.shared.copy(textToCopy: password.password)
-            SVProgressHUD.setDefaultMaskType(.black)
-            SVProgressHUD.setDefaultStyle(.dark)
-            SVProgressHUD.showSuccess(withStatus: "PasswordCopiedToPasteboard.".localize())
-            SVProgressHUD.dismiss(withDelay: 1)
+            Toast.show("PasswordCopiedToPasteboard.".localize())
         }
     }
 

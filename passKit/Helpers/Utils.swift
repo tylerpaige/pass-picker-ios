@@ -64,9 +64,7 @@ public enum Utils {
                 controller.present(alert, animated: true)
             }
             _ = sem.wait(timeout: DispatchTime.distantFuture)
-            if Defaults.isRememberPGPPassphraseOn {
-                AppKeychain.shared.add(string: passphrase, for: AppKeychain.getPGPKeyPassphraseKey(keyID: keyID))
-            }
+            PGPPassphraseMemory.remember(passphrase, for: keyID)
             return passphrase
         }
     }

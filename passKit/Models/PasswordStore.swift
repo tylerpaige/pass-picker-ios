@@ -360,6 +360,7 @@ public class PasswordStore {
 
         // Delete PGP key, SSH key and other secrets from the keychain.
         AppKeychain.shared.removeAllContent()
+        PGPPassphraseBiometrics.forget()
 
         // Delete default settings.
         Defaults.removeAll()

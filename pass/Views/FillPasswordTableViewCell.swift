@@ -21,10 +21,12 @@ class FillPasswordTableViewCell: UITableViewCell {
 
     weak var delegate: FillPasswordTableViewCellDelegate?
 
+    var passwordTextColor = Colors.label
+
     override func awakeFromNib() {
         super.awakeFromNib()
         // Initialization code
-        contentTextField.font = Globals.passwordFont
+        contentTextField.font = Theme.mono(16)
 
         // Force aspect ratio of button images
         settingButton.imageView?.contentMode = .scaleAspectFit
@@ -44,7 +46,7 @@ class FillPasswordTableViewCell: UITableViewCell {
     // re-color
     @IBAction
     private func textFieldDidChange(_ sender: UITextField) {
-        contentTextField.attributedText = Utils.attributedPassword(plainPassword: sender.text ?? "")
+        contentTextField.attributedText = Theme.attributedPassword(sender.text ?? "", textColor: passwordTextColor, font: contentTextField.font)
     }
 
     func getContent() -> String? {
@@ -52,6 +54,6 @@ class FillPasswordTableViewCell: UITableViewCell {
     }
 
     func setContent(content: String?) {
-        contentTextField.attributedText = Utils.attributedPassword(plainPassword: content ?? "")
+        contentTextField.attributedText = Theme.attributedPassword(content ?? "", textColor: passwordTextColor, font: contentTextField.font)
     }
 }

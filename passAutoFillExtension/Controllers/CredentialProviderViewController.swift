@@ -50,7 +50,7 @@ class CredentialProviderViewController: ASCredentialProviderViewController {
 
     override func provideCredentialWithoutUserInteraction(for credentialIdentity: ASPasswordCredentialIdentity) {
         credentialProvider.identifier = credentialIdentity.serviceIdentifier
-        if !PasscodeLock.shared.hasPasscode, Defaults.isRememberPGPPassphraseOn {
+        if !PasscodeLock.shared.hasPasscode, !PGPPassphraseMemory.hasExpired {
             credentialProvider.credentials(for: credentialIdentity)
         } else {
             extensionContext.cancelRequest(withError: NSError(domain: ASExtensionErrorDomain, code: ASExtensionError.userInteractionRequired.rawValue))

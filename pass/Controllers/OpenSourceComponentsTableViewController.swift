@@ -22,6 +22,11 @@ class OpenSourceComponentsTableViewController: BasicStaticTableViewController {
             "https://github.com/ProtonMail/gopenpgp/blob/master/LICENSE",
         ],
         [
+            "iA Writer Mono",
+            "https://github.com/iaolo/iA-Fonts",
+            "https://github.com/iaolo/iA-Fonts/blob/master/iA%20Writer%20Mono/LICENSE.md",
+        ],
+        [
             "KeychainAccess",
             "https://github.com/kishikawakatsumi/KeychainAccess",
             "https://github.com/kishikawakatsumi/KeychainAccess/blob/master/LICENSE",

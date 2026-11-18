@@ -8,7 +8,7 @@
 
 // General
 "PassForIos"    = "Pass for iOS";
-"PasswordStore" = "Password Store";
+"PasswordStore" = "Pass Picker";
 "Passphrase"    = "Passwort";
 "Password"      = "Passwort";
 "Passwords"     = "Passwörter";

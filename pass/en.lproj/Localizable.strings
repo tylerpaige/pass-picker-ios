@@ -7,8 +7,8 @@
 */
 
 // General
-"PassForIos"    = "Pass for iOS";
-"PasswordStore" = "Password Store";
+"PassForIos"    = "Pass Picker";
+"PasswordStore" = "Pass Picker";
 "Passphrase"    = "Passphrase";
 "Password"      = "Password";
 "Passwords"     = "Passwords";
@@ -192,10 +192,10 @@
 "JustNow"   = "Just now";
 
 // Commit messages
-"AddPassword."     = "Add password for %@ to store using Pass for iOS.";
-"RemovePassword."  = "Remove %@ from store using Pass for iOS.";
-"EditPassword."    = "Edit password for %@ using Pass for iOS.";
-"RenamePassword."  = "Rename %@ to %@ using Pass for iOS.";
+"AddPassword."     = "Add password for %@ to store using Pass Picker.";
+"RemovePassword."  = "Remove %@ from store using Pass Picker.";
+"EditPassword."    = "Edit password for %@ using Pass Picker.";
+"RenamePassword."  = "Rename %@ to %@ using Pass Picker.";
 
 // Menu buttons
 "Ok"        = "OK";

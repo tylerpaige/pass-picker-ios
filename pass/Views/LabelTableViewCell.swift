@@ -29,7 +29,83 @@ class LabelTableViewCell: UITableViewCell {
     weak var delegatePasswordTableView: PasswordDetailTableViewController?
 
     private var passwordDisplayButton: UIButton?
-    private var buttons: UIView?
+
+    // Pass Picker field block: a rule above, the label, then the value in a dark rounded pill.
+    private let ruleView = UIView()
+    private let datumView = UIView()
+    private let buttonStack = UIStackView()
+    private var ruleHeightConstraint: NSLayoutConstraint!
+
+    var showsRuleAbove = true {
+        didSet {
+            ruleHeightConstraint.constant = showsRuleAbove ? 6 : 0
+        }
+    }
+
+    override func awakeFromNib() {
+        super.awakeFromNib()
+        backgroundColor = Theme.Palette.surface
+        titleLabel.font = Theme.mono(14, relativeTo: .subheadline)
+        titleLabel.textColor = Theme.Palette.fieldLabel
+        titleLabel.adjustsFontForContentSizeCategory = true
+        contentLabel.textColor = Theme.Palette.datumText
+        contentLabel.adjustsFontForContentSizeCategory = true
+
+        ruleView.backgroundColor = Theme.Palette.fieldRule
+        datumView.backgroundColor = Theme.Palette.datumBackground
+        let focusBackground = UIView()
+        focusBackground.backgroundColor = Theme.Palette.fieldRule
+        selectedBackgroundView = focusBackground
+        datumView.layer.cornerRadius = 12
+        buttonStack.axis = .horizontal
+        buttonStack.spacing = 4
+
+        // Replace the nib layout with the field block layout, keeping UIKit's margin guide constraints.
+        let nibLabels: [UIView] = [titleLabel, contentLabel]
+        NSLayoutConstraint.deactivate(contentView.constraints.filter { constraint in
+            nibLabels.contains { $0 === constraint.firstItem || $0 === constraint.secondItem }
+        })
+        contentLabel.removeFromSuperview()
+        for view in [ruleView, datumView] {
+            view.translatesAutoresizingMaskIntoConstraints = false
+            contentView.addSubview(view)
+        }
+        for view in [contentLabel!, buttonStack] {
+            view.translatesAutoresizingMaskIntoConstraints = false
+            datumView.addSubview(view)
+        }
+        contentLabel.setContentHuggingPriority(.defaultLow, for: .horizontal)
+        contentLabel.setContentCompressionResistancePriority(.defaultLow, for: .horizontal)
+        buttonStack.setContentHuggingPriority(.required, for: .horizontal)
+        buttonStack.setContentCompressionResistancePriority(.required, for: .horizontal)
+
+        let margins = contentView.layoutMarginsGuide
+        ruleHeightConstraint = ruleView.heightAnchor.constraint(equalToConstant: 6)
+        NSLayoutConstraint.activate([
+            ruleView.topAnchor.constraint(equalTo: contentView.topAnchor),
+            ruleView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
+            ruleView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
+            ruleHeightConstraint,
+
+            titleLabel.topAnchor.constraint(equalTo: ruleView.bottomAnchor, constant: 18),
+            titleLabel.leadingAnchor.constraint(equalTo: margins.leadingAnchor),
+            titleLabel.trailingAnchor.constraint(equalTo: margins.trailingAnchor),
+
+            datumView.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 10),
+            datumView.leadingAnchor.constraint(equalTo: margins.leadingAnchor),
+            datumView.trailingAnchor.constraint(equalTo: margins.trailingAnchor),
+            datumView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -18),
+
+            contentLabel.topAnchor.constraint(equalTo: datumView.topAnchor, constant: 12),
+            contentLabel.bottomAnchor.constraint(equalTo: datumView.bottomAnchor, constant: -12),
+            contentLabel.leadingAnchor.constraint(equalTo: datumView.leadingAnchor, constant: 16),
+            contentLabel.trailingAnchor.constraint(equalTo: buttonStack.leadingAnchor, constant: -8),
+            contentLabel.heightAnchor.constraint(greaterThanOrEqualToConstant: 21),
+
+            buttonStack.trailingAnchor.constraint(equalTo: datumView.trailingAnchor, constant: -10),
+            buttonStack.centerYAnchor.constraint(equalTo: datumView.centerYAnchor),
+        ])
+    }
 
     var cellData: LabelTableViewCellData? {
         didSet {
@@ -40,8 +116,9 @@ class LabelTableViewCell: UITableViewCell {
             titleLabel.text = title
             if title.caseInsensitiveCompare("password") == .orderedSame {
                 type = .password
+                contentLabel.font = Theme.mono(17)
                 if isReveal {
-                    contentLabel.attributedText = Utils.attributedPassword(plainPassword: content)
+                    contentLabel.attributedText = Theme.attributedPassword(content, textColor: Theme.Palette.datumText, font: contentLabel.font)
                 } else {
                     if content.isEmpty {
                         contentLabel.text = ""
@@ -49,7 +126,6 @@ class LabelTableViewCell: UITableViewCell {
                         contentLabel.text = Globals.passwordDots
                     }
                 }
-                contentLabel.font = Globals.passwordFont
             } else if title.caseInsensitiveCompare("HmacBased".localize()) == .orderedSame {
                 type = .HOTP
                 if isReveal {
@@ -57,58 +133,76 @@ class LabelTableViewCell: UITableViewCell {
                 } else {
                     contentLabel.text = Globals.oneTimePasswordDots
                 }
-                contentLabel.font = Globals.passwordFont
+                contentLabel.font = Theme.mono(17)
             } else if title.lowercased().contains("url") {
                 type = .URL
                 contentLabel.text = content
-                contentLabel.font = UIFont.systemFont(ofSize: contentLabel.font.pointSize)
+                contentLabel.font = Theme.mono(17)
             } else {
                 // default
                 type = .other
                 contentLabel.text = content
-                contentLabel.font = UIFont.systemFont(ofSize: contentLabel.font.pointSize)
+                contentLabel.font = Theme.mono(17)
             }
             updateButtons()
         }
     }
 
-    override var canBecomeFirstResponder: Bool {
-        true
+    var isSecret: Bool {
+        type == .password || type == .HOTP
     }
 
-    override func canPerformAction(_ action: Selector, withSender _: Any?) -> Bool {
-        switch type {
-        case .password:
-            if isReveal {
-                return action == #selector(copy(_:)) || action == #selector(concealPassword)
-            }
-            return action == #selector(copy(_:)) || action == #selector(revealPassword)
-        case .URL:
-            return action == #selector(copy(_:)) || action == #selector(openLink)
-        case .HOTP:
-            if isReveal {
-                return action == #selector(copy(_:)) || action == #selector(concealPassword) || action == #selector(getNextHOTP)
-            }
-            return action == #selector(copy(_:)) || action == #selector(revealPassword) || action == #selector(getNextHOTP)
-        default:
-            return action == #selector(copy(_:))
+    // UIKit clears subview backgrounds on selection; keep the rule and pill visible when a field is keyboard-focused.
+    override func setSelected(_ selected: Bool, animated: Bool) {
+        super.setSelected(selected, animated: animated)
+        restoreFieldColors()
+    }
+
+    override func setHighlighted(_ highlighted: Bool, animated: Bool) {
+        super.setHighlighted(highlighted, animated: animated)
+        restoreFieldColors()
+    }
+
+    private func restoreFieldColors() {
+        ruleView.backgroundColor = Theme.Palette.fieldRule
+        datumView.backgroundColor = Theme.Palette.datumBackground
+    }
+
+    /// The long-press menu for this field.
+    var menuActions: [UIAction] {
+        var actions = [
+            UIAction(title: "Copy", image: UIImage(systemName: "doc.on.doc")) { [weak self] _ in
+                SecurePasteboard.shared.copy(textToCopy: self?.cellData?.content)
+            },
+        ]
+        if isSecret {
+            actions.append(isReveal
+                ? UIAction(title: "Conceal".localize(), image: UIImage(systemName: "eye.slash")) { [weak self] _ in self?.concealPassword(nil) }
+                : UIAction(title: "Reveal".localize(), image: UIImage(systemName: "eye")) { [weak self] _ in self?.revealPassword(nil) })
         }
-    }
-
-    override func copy(_: Any?) {
-        SecurePasteboard.shared.copy(textToCopy: cellData?.content)
+        if type == .HOTP {
+            actions.append(UIAction(title: "NextPassword".localize(), image: UIImage(systemName: "arrow.clockwise")) { [weak self] _ in
+                self?.getNextHOTP(nil)
+            })
+        }
+        if type == .URL {
+            actions.append(UIAction(title: "CopyAndOpen".localize(), image: UIImage(systemName: "safari")) { [weak self] _ in
+                self?.openLink(nil)
+            })
+        }
+        return actions
     }
 
     @objc
     func revealPassword(_: Any?) {
         let plainPassword = cellData?.content ?? ""
         if type == .password {
-            contentLabel.attributedText = Utils.attributedPassword(plainPassword: plainPassword)
+            contentLabel.attributedText = Theme.attributedPassword(plainPassword, textColor: Theme.Palette.datumText, font: contentLabel.font)
         } else {
             contentLabel.text = plainPassword
         }
         isReveal = true
-        passwordDisplayButton?.setImage(#imageLiteral(resourceName: "Invisible"), for: .normal)
+        passwordDisplayButton?.setTitle("◉", for: .normal)
     }
 
     @objc
@@ -116,7 +210,7 @@ class LabelTableViewCell: UITableViewCell {
         if type == .password {
             if cellData?.content.isEmpty == false {
                 contentLabel.text = Globals.passwordDots
-                contentLabel.textColor = Colors.label
+                contentLabel.textColor = Theme.Palette.datumText
             } else {
                 contentLabel.text = ""
             }
@@ -124,7 +218,7 @@ class LabelTableViewCell: UITableViewCell {
             contentLabel.text = Globals.oneTimePasswordDots
         }
         isReveal = false
-        passwordDisplayButton?.setImage(#imageLiteral(resourceName: "Visible"), for: .normal)
+        passwordDisplayButton?.setTitle("◎", for: .normal)
     }
 
     @objc
@@ -150,53 +244,34 @@ class LabelTableViewCell: UITableViewCell {
         delegatePasswordTableView!.getNextHOTP()
     }
 
-    private func updateButtons() {
-        // total width and height of a button
-        let height = min(bounds.height, 36.0)
-        let width = max(height * 0.8, Globals.tableCellButtonSize)
+    private func makeGlyphButton(_ glyph: String, action: Selector) -> UIButton {
+        let button = UIButton(type: .system)
+        button.setTitle(glyph, for: .normal)
+        button.titleLabel?.font = .systemFont(ofSize: 20)
+        button.tintColor = Theme.Palette.datumText.withAlphaComponent(0.7)
+        button.addTarget(self, action: action, for: .touchUpInside)
+        button.widthAnchor.constraint(equalToConstant: 32).isActive = true
+        button.heightAnchor.constraint(equalToConstant: 32).isActive = true
+        return button
+    }
 
-        // margins (between button boundary and icon)
-        let marginY = max((height - Globals.tableCellButtonSize) / 2, 0.0)
-        let marginX = max((width - Globals.tableCellButtonSize) / 2, 0.0)
+    private func updateButtons() {
+        buttonStack.arrangedSubviews.forEach { $0.removeFromSuperview() }
+        passwordDisplayButton = nil
 
         switch type {
         case .password:
             if let content = cellData?.content, !content.isEmpty {
-                // password button
-                passwordDisplayButton = UIButton(type: .system)
-                passwordDisplayButton!.frame = CGRect(x: 0, y: 0, width: width, height: height)
-                passwordDisplayButton!.setImage(#imageLiteral(resourceName: "Visible"), for: .normal)
-                passwordDisplayButton!.imageView?.contentMode = .scaleAspectFit
-                passwordDisplayButton!.contentEdgeInsets = UIEdgeInsets(top: marginY, left: marginX, bottom: marginY, right: marginX)
-                passwordDisplayButton!.addTarget(self, action: #selector(reversePasswordDisplay), for: UIControl.Event.touchUpInside)
-                buttons = passwordDisplayButton
+                passwordDisplayButton = makeGlyphButton(isReveal ? "◉" : "◎", action: #selector(reversePasswordDisplay))
             }
         case .HOTP:
-            // hotp button
-            let nextButton = UIButton(type: .system)
-            nextButton.frame = CGRect(x: 0, y: 0, width: width, height: height)
-            nextButton.setImage(#imageLiteral(resourceName: "Refresh"), for: .normal)
-            nextButton.imageView?.contentMode = .scaleAspectFit
-            nextButton.contentEdgeInsets = UIEdgeInsets(top: marginY, left: marginX, bottom: marginY, right: marginX)
-            nextButton.addTarget(self, action: #selector(getNextHOTP), for: UIControl.Event.touchUpInside)
-
-            // password button
-            passwordDisplayButton = UIButton(type: .system)
-            passwordDisplayButton!.frame = CGRect(x: width, y: 0, width: width, height: height)
-
-            passwordDisplayButton!.setImage(#imageLiteral(resourceName: "Visible"), for: .normal)
-            passwordDisplayButton!.imageView?.contentMode = .scaleAspectFit
-            passwordDisplayButton!.contentEdgeInsets = UIEdgeInsets(top: marginY, left: marginX, bottom: marginY, right: marginX)
-            passwordDisplayButton!.addTarget(self, action: #selector(reversePasswordDisplay), for: UIControl.Event.touchUpInside)
-
-            buttons = UIView()
-            buttons!.frame = CGRect(x: 0, y: 0, width: width * 2, height: height)
-            buttons!.addSubview(nextButton)
-            buttons!.addSubview(passwordDisplayButton!)
+            buttonStack.addArrangedSubview(makeGlyphButton("↻", action: #selector(getNextHOTP)))
+            passwordDisplayButton = makeGlyphButton(isReveal ? "◉" : "◎", action: #selector(reversePasswordDisplay))
         default:
-            passwordDisplayButton = nil
-            buttons = nil
+            break
         }
-        accessoryView = buttons
+        if let passwordDisplayButton {
+            buttonStack.addArrangedSubview(passwordDisplayButton)
+        }
     }
 }

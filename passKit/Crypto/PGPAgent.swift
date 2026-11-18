@@ -68,20 +68,54 @@ public class PGPAgent {
         let previousDecryptStatus = latestDecryptStatus
         latestDecryptStatus = false
 
-        // Get the PGP key passphrase.
-        var passphrase = ""
-        if previousDecryptStatus == false {
-            passphrase = requestPGPKeyPassphrase(keyID)
-        } else {
-            passphrase = keyStore.get(for: AppKeychain.getPGPKeyPassphraseKey(keyID: keyID)) ?? requestPGPKeyPassphrase(keyID)
+        let (passphrase, source) = passphrase(for: keyID, afterFailure: !previousDecryptStatus, request: requestPGPKeyPassphrase)
+        let result = try decrypting(with: source, keyID: keyID) {
+            try pgpInterface.decrypt(encryptedData: encryptedData, keyID: keyID, passphrase: passphrase)
         }
-        // Decrypt.
-        guard let result = try pgpInterface.decrypt(encryptedData: encryptedData, keyID: keyID, passphrase: passphrase) else {
+        guard let result else {
             return nil
         }
         // The decryption step has succeed.
         latestDecryptStatus = true
+        PGPPassphraseMemory.didUse()
+        if source == .typed {
+            PGPPassphraseBiometrics.save(passphrase, for: keyID)
+        }
         return result
+    }
+
+    private enum PassphraseSource {
+        case memory, biometrics, typed
+    }
+
+    /// The remembered passphrase, else the one saved for Face ID / Touch ID, else a typed one.
+    /// After a failed attempt the passphrase is always typed.
+    private func passphrase(for keyID: String, afterFailure: Bool, request: (String) -> String) -> (String, PassphraseSource) {
+        if !afterFailure {
+            if let passphrase = PGPPassphraseMemory.passphrase(for: keyID, in: keyStore) {
+                return (passphrase, .memory)
+            }
+            if let passphrase = PGPPassphraseBiometrics.passphrase(for: keyID) {
+                return (passphrase, .biometrics)
+            }
+        }
+        return (request(keyID), .typed)
+    }
+
+    // A saved passphrase that no longer decrypts (the key changed) is dropped, so the next attempt asks for it.
+    private func decrypting(with source: PassphraseSource, keyID: String, _ decrypt: () throws -> Data?) throws -> Data? {
+        do {
+            let result = try decrypt()
+            if result == nil, source == .biometrics {
+                PGPPassphraseBiometrics.forget(keyID: keyID)
+            }
+            return result
+        } catch {
+            if source == .biometrics {
+                PGPPassphraseBiometrics.forget(keyID: keyID)
+            }
+            throw error
+        }
     }
 
     public func encrypt(plainData: Data, keyID: String) throws -> Data {
@@ -106,19 +140,19 @@ public class PGPAgent {
         latestDecryptStatus = false
         // Init keys.
         try checkAndInit()
-        // Get the PGP key passphrase.
-        var passphrase = ""
-        if previousDecryptStatus == false {
-            passphrase = requestPGPKeyPassphrase("")
-        } else {
-            passphrase = keyStore.get(for: AppKeychain.getPGPKeyPassphraseKey(keyID: "")) ?? requestPGPKeyPassphrase("")
+        let (passphrase, source) = passphrase(for: "", afterFailure: !previousDecryptStatus, request: requestPGPKeyPassphrase)
+        let result = try decrypting(with: source, keyID: "") {
+            try pgpInterface!.decrypt(encryptedData: encryptedData, keyID: nil, passphrase: passphrase)
         }
-        // Decrypt.
-        guard let result = try pgpInterface!.decrypt(encryptedData: encryptedData, keyID: nil, passphrase: passphrase) else {
+        guard let result else {
             return nil
         }
         // The decryption step has succeed.
         latestDecryptStatus = true
+        PGPPassphraseMemory.didUse()
+        if source == .typed {
+            PGPPassphraseBiometrics.save(passphrase, for: "")
+        }
         return result
     }
 

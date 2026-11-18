@@ -37,6 +37,10 @@ class PasswordsViewController: UIViewController {
 
         tableView.delegate = self
         tableView.dataSource = dataSource
+
+        view.backgroundColor = Theme.Palette.chrome
+        tableView.backgroundColor = Theme.Palette.chrome
+        tableView.separatorStyle = .none
     }
 
     func showPasswordsWithSuggestion(matching text: String) {
@@ -62,9 +66,29 @@ extension PasswordsViewController: UISearchBarDelegate {
 }
 
 extension PasswordsViewController: UITableViewDelegate {
+    func tableView(_ tableView: UITableView, willDisplayHeaderView view: UIView, forSection section: Int) {
+        guard let header = view as? UITableViewHeaderFooterView else {
+            return
+        }
+        var content = header.defaultContentConfiguration()
+        content.text = dataSource.tableView(tableView, titleForHeaderInSection: section)
+        content.textProperties.font = Theme.mono(13, relativeTo: .footnote)
+        content.textProperties.color = Theme.Palette.chromeText
+        header.contentConfiguration = content
+    }
+
     func tableView(_: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
         let entry = dataSource.tableEntry(at: indexPath)
+        if entry.isDir {
+            if dataSource.isTreeSection(indexPath.section) {
+                dataSource.tree.toggle(at: indexPath.row)
+                UIView.transition(with: tableView, duration: 0.15, options: .transitionCrossDissolve) {
+                    tableView.reloadData()
+                }
+            }
+            return
+        }
         UIImpactFeedbackGenerator(style: .medium).impactOccurred()
         selectionDelegate?.selected(password: entry)
     }

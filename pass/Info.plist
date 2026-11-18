@@ -7,7 +7,19 @@
 		<key>UIApplicationSupportsMultipleScenes</key>
 		<false/>
 		<key>UISceneConfigurations</key>
-		<dict/>
+		<dict>
+			<key>UIWindowSceneSessionRoleApplication</key>
+			<array>
+				<dict>
+					<key>UISceneConfigurationName</key>
+					<string>Default Configuration</string>
+					<key>UISceneDelegateClassName</key>
+					<string>$(PRODUCT_MODULE_NAME).SceneDelegate</string>
+					<key>UISceneStoryboardFile</key>
+					<string>Main</string>
+				</dict>
+			</array>
+		</dict>
 	</dict>
 	<key>com.apple.developer.nfc.readersession.iso7816.select-identifiers</key>
 	<array>
@@ -23,7 +35,7 @@
 	<key>CFBundleDevelopmentRegion</key>
 	<string>en</string>
 	<key>CFBundleDisplayName</key>
-	<string>$(PRODUCT_NAME)</string>
+	<string>Pass Picker</string>
 	<key>CFBundleExecutable</key>
 	<string>$(EXECUTABLE_NAME)</string>
 	<key>CFBundleIdentifier</key>
@@ -59,6 +71,11 @@
 	<array>
 		<string>SyncRepositoryIntent</string>
 	</array>
+	<key>UIAppFonts</key>
+	<array>
+		<string>iAWriterMonoS-Regular.ttf</string>
+		<string>iAWriterMonoS-Bold.ttf</string>
+	</array>
 	<key>UIApplicationShortcutItems</key>
 	<array>
 		<dict>
@@ -73,8 +90,6 @@
 	<key>UIFileSharingEnabled</key>
 	<true/>
 	<key>UILaunchStoryboardName</key>
-	<string>Main</string>
-	<key>UIMainStoryboardFile</key>
 	<string>Main</string>
 	<key>UIRequiredDeviceCapabilities</key>
 	<array>

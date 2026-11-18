@@ -6,15 +6,15 @@
 //  Copyright © 2017 Bob Sun. All rights reserved.
 //
 
+import AuthenticationServices
 import passKit
+import SVProgressHUD
 import UIKit
 
 class GeneralSettingsTableViewController: BasicStaticTableViewController {
-    let passwordStore = PasswordStore.shared
-
     private lazy var hideUnknownSwitch: UISwitch = {
         let uiSwitch = UISwitch()
-        uiSwitch.onTintColor = Colors.systemBlue
+        uiSwitch.onTintColor = Theme.Palette.datumBackground
         uiSwitch.sizeToFit()
         uiSwitch.addTarget(self, action: #selector(hideUnknownSwitchAction), for: UIControl.Event.valueChanged)
         return uiSwitch
@@ -22,7 +22,7 @@ class GeneralSettingsTableViewController: BasicStaticTableViewController {
 
     private lazy var hideOTPSwitch: UISwitch = {
         let uiSwitch = UISwitch()
-        uiSwitch.onTintColor = Colors.systemBlue
+        uiSwitch.onTintColor = Theme.Palette.datumBackground
         uiSwitch.sizeToFit()
         uiSwitch.addTarget(self, action: #selector(hideOTPSwitchAction), for: UIControl.Event.valueChanged)
         return uiSwitch
@@ -30,76 +30,32 @@ class GeneralSettingsTableViewController: BasicStaticTableViewController {
 
     private lazy var autoCopyOTPSwitch: UISwitch = {
         let uiSwitch = UISwitch()
-        uiSwitch.onTintColor = Colors.systemBlue
+        uiSwitch.onTintColor = Theme.Palette.datumBackground
         uiSwitch.sizeToFit()
         uiSwitch.addTarget(self, action: #selector(autoCopyOTPSwitchAction), for: UIControl.Event.valueChanged)
         return uiSwitch
     }()
 
-    private lazy var rememberPGPPassphraseSwitch: UISwitch = {
-        let uiSwitch = UISwitch()
-        uiSwitch.onTintColor = Colors.systemBlue
-        uiSwitch.sizeToFit()
-        uiSwitch.addTarget(self, action: #selector(rememberPGPPassphraseSwitchAction), for: UIControl.Event.valueChanged)
-        uiSwitch.isOn = Defaults.isRememberPGPPassphraseOn
-        return uiSwitch
-    }()
-
-    private lazy var rememberGitCredentialPassphraseSwitch: UISwitch = {
-        let uiSwitch = UISwitch()
-        uiSwitch.onTintColor = Colors.systemBlue
-        uiSwitch.sizeToFit()
-        uiSwitch.addTarget(self, action: #selector(rememberGitCredentialPassphraseSwitchAction), for: UIControl.Event.valueChanged)
-        uiSwitch.isOn = Defaults.isRememberGitCredentialPassphraseOn
-        return uiSwitch
-    }()
-
     private lazy var enableGPGIDSwitch: UISwitch = {
         let uiSwitch = UISwitch()
-        uiSwitch.onTintColor = Colors.systemBlue
+        uiSwitch.onTintColor = Theme.Palette.datumBackground
         uiSwitch.sizeToFit()
         uiSwitch.addTarget(self, action: #selector(enableGPGIDSwitchAction), for: UIControl.Event.valueChanged)
         uiSwitch.isOn = Defaults.isEnableGPGIDOn
         return uiSwitch
     }()
 
-    private lazy var showFolderSwitch: UISwitch = {
-        let uiSwitch = UISwitch()
-        uiSwitch.onTintColor = Colors.systemBlue
-        uiSwitch.sizeToFit()
-        uiSwitch.addTarget(self, action: #selector(showFolderSwitchAction), for: UIControl.Event.valueChanged)
-        uiSwitch.isOn = Defaults.isShowFolderOn
-        return uiSwitch
-    }()
-
-    private lazy var hidePasswordImagesSwitch: UISwitch = {
-        let uiSwitch = UISwitch()
-        uiSwitch.onTintColor = Colors.systemBlue
-        uiSwitch.sizeToFit()
-        uiSwitch.addTarget(self, action: #selector(hidePasswordImagesSwitchAction), for: UIControl.Event.valueChanged)
-        uiSwitch.isOn = Defaults.isHidePasswordImagesOn
-        return uiSwitch
-    }()
-
     override func viewDidLoad() {
+        // The repository and passphrase settings live in Password Repository and Encryption.
         tableData = [
-            // section 0
-            [[.title: "AboutRepository".localize(), .action: "segue", .link: "showAboutRepositorySegue"]],
-
-            // section 1
-            [
-                [.title: "RememberPgpKeyPassphrase".localize(), .action: "none"],
-                [.title: "RememberGitCredentialPassphrase".localize(), .action: "none"],
-            ],
-
-            // section 2
             [
                 [.title: "EnableGPGID".localize(), .action: "none"],
-                [.title: "ShowFolders".localize(), .action: "none"],
-                [.title: "HidePasswordImages".localize(), .action: "none"],
                 [.title: "HideUnknownFields".localize(), .action: "none"],
                 [.title: "HideOtpFields".localize(), .action: "none"],
                 [.title: "AutoCopyOTP".localize(), .action: "none"],
+            ],
+            [
+                [.title: "Clear Saved Suggestions", .action: "none", .accessoryType: UITableViewCell.AccessoryType.none],
             ],
         ]
         super.viewDidLoad()
@@ -110,25 +66,16 @@ class GeneralSettingsTableViewController: BasicStaticTableViewController {
         cell.accessoryType = .none
         cell.selectionStyle = .none
         switch cell.textLabel!.text! {
-        case "AboutRepository".localize():
-            cell.accessoryType = .disclosureIndicator
         case "HideUnknownFields".localize():
             hideUnknownSwitch.isOn = Defaults.isHideUnknownOn
             addDetailButton(to: cell, for: hideUnknownSwitch, with: #selector(tapHideUnknownSwitchDetailButton))
         case "HideOtpFields".localize():
             hideOTPSwitch.isOn = Defaults.isHideOTPOn
             addDetailButton(to: cell, for: hideOTPSwitch, with: #selector(tapHideOTPSwitchDetailButton))
-        case "RememberPgpKeyPassphrase".localize():
-            cell.accessoryView = rememberPGPPassphraseSwitch
-        case "RememberGitCredentialPassphrase".localize():
-            cell.accessoryView = rememberGitCredentialPassphraseSwitch
-        case "ShowFolders".localize():
-            cell.accessoryView = showFolderSwitch
         case "EnableGPGID".localize():
             cell.accessoryView = enableGPGIDSwitch
-        case "HidePasswordImages".localize():
-            hidePasswordImagesSwitch.isOn = Defaults.isHidePasswordImagesOn
-            addDetailButton(to: cell, for: hidePasswordImagesSwitch, with: #selector(tapHidePasswordImagesSwitchDetailButton))
+        case "Clear Saved Suggestions":
+            cell.selectionStyle = .default
         case "AutoCopyOTP".localize():
             autoCopyOTPSwitch.isOn = Defaults.autoCopyOTP
             addDetailButton(to: cell, for: autoCopyOTPSwitch, with: #selector(tapAutoCopyOTPSwitchDetailButton))
@@ -136,6 +83,37 @@ class GeneralSettingsTableViewController: BasicStaticTableViewController {
             break
         }
         return cell
+    }
+
+    override func tableView(_: UITableView, titleForFooterInSection section: Int) -> String? {
+        guard section == 1 else {
+            return nil
+        }
+        return "When you fill a password with AutoFill, Pass Picker remembers it for that app or website "
+            + "and suggests it above the keyboard next time. Clearing removes these suggestions; your passwords stay as they are."
+    }
+
+    override func tableView(_: UITableView, heightForFooterInSection _: Int) -> CGFloat {
+        UITableView.automaticDimension
+    }
+
+    override func tableView(_: UITableView, estimatedHeightForFooterInSection _: Int) -> CGFloat {
+        60
+    }
+
+    override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        tableView.deselectRow(at: indexPath, animated: true)
+        guard tableView.cellForRow(at: indexPath)?.textLabel?.text == "Clear Saved Suggestions" else {
+            return
+        }
+        ASCredentialIdentityStore.shared.removeAllCredentialIdentities { _, error in
+            if let error {
+                SVProgressHUD.showError(withStatus: "FailedToClearQuickTypeSuggestions".localize(error))
+            } else {
+                SVProgressHUD.showSuccess(withStatus: "Done".localize())
+            }
+            SVProgressHUD.dismiss(withDelay: 1)
+        }
     }
 
     private func addDetailButton(to cell: UITableViewCell, for uiSwitch: UISwitch, with action: Selector) {
@@ -190,13 +168,6 @@ class GeneralSettingsTableViewController: BasicStaticTableViewController {
     }
 
     @objc
-    func tapHidePasswordImagesSwitchDetailButton(_: Any?) {
-        let alertMessage = "HidePasswordImagesExplanation.".localize()
-        let alertTitle = "HidePasswordImages".localize()
-        Utils.alert(title: alertTitle, message: alertMessage, controller: self, completion: nil)
-    }
-
-    @objc
     func hideUnknownSwitchAction(_: Any?) {
         Defaults.isHideUnknownOn = hideUnknownSwitch.isOn
         NotificationCenter.default.post(name: .passwordDetailDisplaySettingChanged, object: nil)
@@ -214,36 +185,7 @@ class GeneralSettingsTableViewController: BasicStaticTableViewController {
     }
 
     @objc
-    func rememberPGPPassphraseSwitchAction(_: Any?) {
-        Defaults.isRememberPGPPassphraseOn = rememberPGPPassphraseSwitch.isOn
-        if rememberPGPPassphraseSwitch.isOn == false {
-            AppKeychain.shared.removeAllContent(withPrefix: Globals.pgpKeyPassphrase)
-        }
-    }
-
-    @objc
-    func rememberGitCredentialPassphraseSwitchAction(_: Any?) {
-        Defaults.isRememberGitCredentialPassphraseOn = rememberGitCredentialPassphraseSwitch.isOn
-        if rememberGitCredentialPassphraseSwitch.isOn == false {
-            passwordStore.gitSSHPrivateKeyPassphrase = nil
-            passwordStore.gitPassword = nil
-        }
-    }
-
-    @objc
-    func showFolderSwitchAction(_: Any?) {
-        Defaults.isShowFolderOn = showFolderSwitch.isOn
-        NotificationCenter.default.post(name: .passwordDisplaySettingChanged, object: nil)
-    }
-
-    @objc
     func enableGPGIDSwitchAction(_: Any?) {
         Defaults.isEnableGPGIDOn = enableGPGIDSwitch.isOn
-    }
-
-    @objc
-    func hidePasswordImagesSwitchAction(_: Any?) {
-        Defaults.isHidePasswordImagesOn = hidePasswordImagesSwitch.isOn
-        NotificationCenter.default.post(name: .passwordDetailDisplaySettingChanged, object: nil)
     }
 }

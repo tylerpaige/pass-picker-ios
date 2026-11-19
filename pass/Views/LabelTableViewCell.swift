@@ -35,6 +35,22 @@ class LabelTableViewCell: UITableViewCell {
     private let datumView = UIView()
     private let buttonStack = UIStackView()
     private var ruleHeightConstraint: NSLayoutConstraint!
+    private var titleTopConstraint: NSLayoutConstraint!
+    private var datumTopConstraint: NSLayoutConstraint!
+    private var datumBottomConstraint: NSLayoutConstraint!
+    private var contentTopConstraint: NSLayoutConstraint!
+    private var contentBottomConstraint: NSLayoutConstraint!
+
+    /// Bulleted-list items sit close together, with the list's title only above the first.
+    var listPosition = (isItem: false, continuesList: false, listContinues: false) {
+        didSet {
+            titleTopConstraint.constant = listPosition.continuesList ? 0 : 18
+            datumTopConstraint.constant = listPosition.continuesList ? 0 : 10
+            datumBottomConstraint.constant = listPosition.listContinues ? -6 : -18
+            contentTopConstraint.constant = listPosition.isItem ? 7 : 12
+            contentBottomConstraint.constant = listPosition.isItem ? -7 : -12
+        }
+    }
 
     var showsRuleAbove = true {
         didSet {
@@ -81,23 +97,28 @@ class LabelTableViewCell: UITableViewCell {
 
         let margins = contentView.layoutMarginsGuide
         ruleHeightConstraint = ruleView.heightAnchor.constraint(equalToConstant: 6)
+        titleTopConstraint = titleLabel.topAnchor.constraint(equalTo: ruleView.bottomAnchor, constant: 18)
+        datumTopConstraint = datumView.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 10)
+        datumBottomConstraint = datumView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -18)
+        contentTopConstraint = contentLabel.topAnchor.constraint(equalTo: datumView.topAnchor, constant: 12)
+        contentBottomConstraint = contentLabel.bottomAnchor.constraint(equalTo: datumView.bottomAnchor, constant: -12)
         NSLayoutConstraint.activate([
             ruleView.topAnchor.constraint(equalTo: contentView.topAnchor),
             ruleView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
             ruleView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
             ruleHeightConstraint,
 
-            titleLabel.topAnchor.constraint(equalTo: ruleView.bottomAnchor, constant: 18),
+            titleTopConstraint,
             titleLabel.leadingAnchor.constraint(equalTo: margins.leadingAnchor),
             titleLabel.trailingAnchor.constraint(equalTo: margins.trailingAnchor),
 
-            datumView.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 10),
+            datumTopConstraint,
             datumView.leadingAnchor.constraint(equalTo: margins.leadingAnchor),
             datumView.trailingAnchor.constraint(equalTo: margins.trailingAnchor),
-            datumView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -18),
+            datumBottomConstraint,
 
-            contentLabel.topAnchor.constraint(equalTo: datumView.topAnchor, constant: 12),
-            contentLabel.bottomAnchor.constraint(equalTo: datumView.bottomAnchor, constant: -12),
+            contentTopConstraint,
+            contentBottomConstraint,
             contentLabel.leadingAnchor.constraint(equalTo: datumView.leadingAnchor, constant: 16),
             contentLabel.trailingAnchor.constraint(equalTo: buttonStack.leadingAnchor, constant: -8),
             contentLabel.heightAnchor.constraint(greaterThanOrEqualToConstant: 21),

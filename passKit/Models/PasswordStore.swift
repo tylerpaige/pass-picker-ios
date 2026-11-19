@@ -326,6 +326,43 @@ public class PasswordStore {
         return newPasswordEntity
     }
 
+    /// Renames or moves a folder with everything in it, in one commit.
+    public func renameDirectory(at oldPath: String, to requestedPath: String) throws {
+        let newPath = requestedPath.trimmingCharacters(in: CharacterSet(charactersIn: "/ "))
+        guard !newPath.isEmpty, newPath != oldPath, !newPath.hasPrefix(oldPath + "/") else {
+            throw AppError.other(message: "Choose a different folder name.")
+        }
+        let fromURL = storeURL.appendingPathComponent(oldPath)
+        let toURL = storeURL.appendingPathComponent(newPath)
+        guard !fileManager.fileExists(atPath: toURL.path) else {
+            throw AppError.other(message: "\(newPath) already exists.")
+        }
+        let unsyncedPaths = Set(fetchUnsyncedPasswords().map(\.path))
+
+        // Every file under the folder, .gpg-id included, relative to it.
+        let files = (fileManager.enumerator(atPath: fromURL.path)?.allObjects as? [String] ?? []).filter { file in
+            var isDirectory: ObjCBool = false
+            return fileManager.fileExists(atPath: fromURL.appendingPathComponent(file).path, isDirectory: &isDirectory) && !isDirectory.boolValue
+        }
+        try createDirectoryTree(at: toURL)
+        try fileManager.moveItem(at: fromURL, to: toURL)
+        for file in files {
+            try gitRm(path: oldPath + "/" + file)
+            try gitAdd(path: newPath + "/" + file)
+        }
+        try? deleteDirectoryTree(at: fromURL)
+        try gitCommit(message: "RenamePassword.".localize(oldPath, newPath))
+
+        // Rebuild the entries from disk, keeping what was unsynced and marking the moved ones.
+        deleteCoreData()
+        initPasswordEntityCoreData()
+        for entity in PasswordEntity.fetchAll(in: context) {
+            entity.isSynced = !(unsyncedPaths.contains(entity.path) || entity.path == newPath || entity.path.hasPrefix(newPath + "/"))
+        }
+        saveUpdatedContext()
+        notificationCenter.post(name: .passwordStoreUpdated, object: nil)
+    }
+
     private func deletePasswordEntities(passwordEntity: PasswordEntity) throws {
         PasswordEntity.deleteRecursively(entity: passwordEntity, in: context)
         saveUpdatedContext()

@@ -8,10 +8,13 @@
 
 public struct AdditionField: Hashable {
     public let title: String, content: String
+    /// One item of a bulleted list: a "key:" line followed by "- item" lines.
+    public let isListItem: Bool
 
-    public init(title: String = "", content: String = "") {
+    public init(title: String = "", content: String = "", isListItem: Bool = false) {
         self.title = title
         self.content = content
+        self.isListItem = isListItem
     }
 
     var asString: String {

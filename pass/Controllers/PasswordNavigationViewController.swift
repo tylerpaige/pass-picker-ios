@@ -127,12 +127,6 @@ class PasswordNavigationViewController: UIViewController {
 
     lazy var addPasswordUIBarButtonItem = UIBarButtonItem(title: "New", style: .plain, target: self, action: #selector(addPasswordAction))
 
-    lazy var gestureRecognizer: UILongPressGestureRecognizer = {
-        let recognizer = UILongPressGestureRecognizer(target: self, action: #selector(longPressAction))
-        recognizer.minimumPressDuration = 0.6
-        return recognizer
-    }()
-
     override func viewDidLoad() {
         super.viewDidLoad()
         searchBar.delegate = self
@@ -229,7 +223,6 @@ class PasswordNavigationViewController: UIViewController {
 
     private func configureTableView(in dir: PasswordEntity?) {
         configureTableViewDataSource(in: dir, isShowFolder: true, asTree: true)
-        tableView.addGestureRecognizer(gestureRecognizer)
         tableView.delegate = self
         tableView.layoutIfNeeded()
         tableView.contentInset.top = 8
@@ -370,23 +363,6 @@ class PasswordNavigationViewController: UIViewController {
     }
 
     @objc
-    func longPressAction(_ gesture: UILongPressGestureRecognizer) {
-        if gesture.state == UIGestureRecognizer.State.began {
-            let touchPoint = gesture.location(in: tableView)
-            if let indexPath = tableView.indexPathForRow(at: touchPoint) {
-                guard let dataSource else {
-                    return
-                }
-                let passwordTableEntry = dataSource.getPasswordTableEntry(at: indexPath)
-                if passwordTableEntry.isDir {
-                    return
-                }
-                passwordManager.providePasswordPasteboard(with: passwordTableEntry.passwordEntity.path)
-            }
-        }
-    }
-
-    @objc
     func actOnSearchNotification() {
         searchBar.becomeFirstResponder()
     }
@@ -428,7 +404,10 @@ extension PasswordNavigationViewController: UITableViewDelegate {
     private func updateTree(_ treeDataSource: PasswordTreeDataSource, change: (PasswordTree) -> Void) {
         let focusedPath = tableView.indexPathForSelectedRow.map { treeDataSource.tree.rows[$0.row].entry.passwordEntity.path }
         change(treeDataSource.tree)
-        expandedPaths = treeDataSource.expandedPaths
+        // Folders opened by a search stay out of the tree you go back to.
+        if !isSearching {
+            expandedPaths = treeDataSource.expandedPaths
+        }
         UIView.transition(with: tableView, duration: 0.15, options: .transitionCrossDissolve) {
             self.tableView.reloadData()
         }
@@ -460,12 +439,15 @@ extension PasswordNavigationViewController: UITableViewDelegate {
         updateFocusHighlight(cell)
     }
 
+    // Tree rows are one line, tighter than the system's 44pt minimum; search results wrap their paths.
+    private static let treeRowHeight: CGFloat = 36
+
     func tableView(_: UITableView, estimatedHeightForRowAt _: IndexPath) -> CGFloat {
-        UITableView.automaticDimension
+        dataSource is PasswordTreeDataSource ? Self.treeRowHeight : UITableView.automaticDimension
     }
 
     func tableView(_: UITableView, heightForRowAt _: IndexPath) -> CGFloat {
-        UITableView.automaticDimension
+        dataSource is PasswordTreeDataSource ? Self.treeRowHeight : UITableView.automaticDimension
     }
 
     func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
@@ -585,12 +567,19 @@ extension PasswordNavigationViewController {
 extension PasswordNavigationViewController: UISearchBarDelegate {
     func search(matching text: String) {
         searchText = text
-        dataSource?.showTableEntries(matching: text)
+        if let treeDataSource = dataSource as? PasswordTreeDataSource {
+            treeDataSource.tree.filter(matching: text)
+        } else {
+            dataSource?.showTableEntries(matching: text)
+        }
         tableView.reloadData()
     }
 
     func activateSearch(_ selectedScope: Int?) {
-        if selectedScope == SearchBarScope.all.rawValue {
+        // The browser searches within its tree, as Pass Picker does.
+        if usesEmbeddedSearchBar {
+            configureTableViewDataSource(in: parentPasswordEntity, isShowFolder: true, asTree: true)
+        } else if selectedScope == SearchBarScope.all.rawValue {
             configureTableViewDataSource(in: nil, isShowFolder: false)
         } else {
             configureTableViewDataSource(in: parentPasswordEntity, isShowFolder: true)
@@ -758,11 +747,19 @@ extension PasswordNavigationViewController {
             .shortcut("+", action: #selector(addPasswordInFocusedFolder), title: "New Password Here"),
             .shortcut("=", action: #selector(addPasswordInFocusedFolder), modifiers: .shift),
             .shortcut("e", action: #selector(editFocusedEntry), modifiers: .command, title: "Edit Password"),
-            .shortcut("r", action: #selector(renameFocusedEntry), title: "Rename"),
+            .shortcut("r", action: #selector(renameFocusedEntry), modifiers: .command, title: "Rename"),
+            .shortcut("r", action: #selector(renameFocusedEntry)),
+            .shortcut("i", action: #selector(addPasswordInFocusedFolder), modifiers: .command, title: "New Item Here"),
+            .shortcut("d", action: #selector(deleteFocusedEntry), modifiers: .command, title: "Delete Password"),
             .shortcut(UIKeyCommand.inputDownArrow, action: #selector(focusNextRow)),
             .shortcut(UIKeyCommand.inputUpArrow, action: #selector(focusPreviousRow)),
             .shortcut("j", action: #selector(focusNextRow)),
             .shortcut("k", action: #selector(focusPreviousRow)),
+            // W/A/S/D act as the arrow keys.
+            .shortcut("s", action: #selector(focusNextRow)),
+            .shortcut("w", action: #selector(focusPreviousRow)),
+            .shortcut("d", action: #selector(expandFocusedRow)),
+            .shortcut("a", action: #selector(collapseFocusedRow)),
             .shortcut(UIKeyCommand.inputRightArrow, action: #selector(expandFocusedRow), title: "Expand Folder"),
             .shortcut(UIKeyCommand.inputLeftArrow, action: #selector(collapseFocusedRow), title: "Collapse Folder"),
             .shortcut(UIKeyCommand.inputRightArrow, action: #selector(expandFocusedLevel), modifiers: .shift, title: "Expand Level"),
@@ -771,9 +768,6 @@ extension PasswordNavigationViewController {
             .shortcut(UIKeyCommand.inputLeftArrow, action: #selector(collapseAllFolders), modifiers: [.command, .shift], title: "Collapse All"),
             .shortcut("\r", action: #selector(openFocusedRow), title: "Open"),
         ]
-        if browser?.detailViewController != nil {
-            commands.append(.shortcut("d", action: #selector(deleteOpenEntry), modifiers: .command, title: "Delete Password"))
-        }
         if browser == nil {
             // In the browser, ⌘F belongs to the browser so it works from either pane.
             commands.append(.shortcut("f", action: #selector(focusSearch), modifiers: .command, title: "Search"))
@@ -840,12 +834,61 @@ extension PasswordNavigationViewController {
         open(entry, editorIntent: .edit)
     }
 
-    // R: rename the focused password in the editor's name field.
+    // ⌘R (or R): rename the focused folder or password.
     @objc
     private func renameFocusedEntry() {
-        if let entry = focusedEntry {
-            open(entry, editorIntent: .rename)
+        if let indexPath = tableView.indexPathForSelectedRow, let entry = dataSource?.getPasswordTableEntry(at: indexPath) {
+            rename(entry)
         }
+    }
+
+    /// A password is renamed in the editor's name field; a folder, with everything in it, here.
+    private func rename(_ entry: PasswordTableEntry) {
+        guard entry.isDir else {
+            open(entry, editorIntent: .rename)
+            return
+        }
+        let oldPath = entry.passwordEntity.path
+        let alert = UIAlertController(title: "Rename Folder", message: "Everything in it moves too.", preferredStyle: .alert)
+        alert.addTextField { field in
+            field.text = oldPath
+            field.font = Theme.mono(15)
+            field.autocapitalizationType = .none
+            field.autocorrectionType = .no
+            field.clearButtonMode = .whileEditing
+        }
+        alert.addAction(UIAlertAction.cancel())
+        alert.addAction(UIAlertAction(title: "Rename", style: .default) { [weak self, weak alert] _ in
+            guard let self, let newPath = alert?.textFields?.first?.text else {
+                return
+            }
+            do {
+                try PasswordStore.shared.renameDirectory(at: oldPath, to: newPath)
+            } catch {
+                Utils.alert(title: "Error".localize(), message: error.localizedDescription, controller: self, completion: nil)
+            }
+        })
+        present(alert, animated: true)
+    }
+
+    /// A new password inside a folder, or beside a password.
+    private func addPassword(near entry: PasswordTableEntry) {
+        newPasswordFolderOverride = .some(entry.isDir ? entry.passwordEntity.path : entry.passwordEntity.parent?.path)
+        addPasswordAction(nil)
+    }
+
+    private func confirmDelete(_ entry: PasswordTableEntry) {
+        let entity = entry.passwordEntity
+        present(DeleteConfirmViewController(path: entity.nameWithDir) { [weak self] in
+            do {
+                try PasswordStore.shared.delete(passwordEntity: entity)
+            } catch {
+                guard let self else {
+                    return
+                }
+                Utils.alert(title: "Error".localize(), message: error.localizedDescription, controller: self, completion: nil)
+            }
+        }, animated: true)
     }
 
     private func open(_ entry: PasswordTableEntry, editorIntent: EditPasswordTableViewController.Intent) {
@@ -861,9 +904,36 @@ extension PasswordNavigationViewController {
         addPasswordAction(nil)
     }
 
+    // ⌘D: the focused password, else the one open beside the list. Folders aren't deleted.
     @objc
-    private func deleteOpenEntry() {
+    private func deleteFocusedEntry() {
+        if let indexPath = tableView.indexPathForSelectedRow, let entry = dataSource?.getPasswordTableEntry(at: indexPath) {
+            if !entry.isDir {
+                confirmDelete(entry)
+            }
+            return
+        }
         browser?.detailViewController?.confirmDelete()
+    }
+
+    // Long-press: a folder can be renamed or given a new item; a password renamed, given a sibling, or deleted.
+    func tableView(_: UITableView, contextMenuConfigurationForRowAt indexPath: IndexPath, point _: CGPoint) -> UIContextMenuConfiguration? {
+        guard let entry = dataSource?.getPasswordTableEntry(at: indexPath) else {
+            return nil
+        }
+        return UIContextMenuConfiguration(identifier: nil, previewProvider: nil) { [weak self] _ in
+            guard let self else {
+                return nil
+            }
+            let rename = UIAction(title: "Rename", image: UIImage(systemName: "pencil")) { _ in self.rename(entry) }
+            guard !entry.isDir else {
+                let newItem = UIAction(title: "New Item", image: UIImage(systemName: "plus")) { _ in self.addPassword(near: entry) }
+                return UIMenu(children: [rename, newItem])
+            }
+            let sibling = UIAction(title: "Add Sibling", image: UIImage(systemName: "plus")) { _ in self.addPassword(near: entry) }
+            let delete = UIAction(title: "Delete", image: UIImage(systemName: "trash"), attributes: .destructive) { _ in self.confirmDelete(entry) }
+            return UIMenu(children: [rename, sibling, delete])
+        }
     }
 
     @objc

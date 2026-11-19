@@ -19,6 +19,9 @@ class PasswordTree {
     private let roots: [PasswordTableEntry]
     private(set) var rows = [PasswordTreeRow]()
     private(set) var expandedPaths: Set<String>
+    /// While searching: the matching entries and the folders that hold them. Nil shows everything.
+    private var visiblePaths: Set<String>?
+    private var expandedPathsBeforeFilter: Set<String>?
 
     init(parent: PasswordEntity?, expandedPaths: Set<String> = []) {
         self.roots = Self.sortedChildren(of: parent)
@@ -80,6 +83,53 @@ class PasswordTree {
         rebuildRows()
     }
 
+    /// Pass Picker's search: keeps the tree, showing only entries whose path contains the query's
+    /// characters in order, and the folders above them, opened so the matches show.
+    func filter(matching query: String) {
+        guard !query.isEmpty else {
+            visiblePaths = nil
+            if let expandedPathsBeforeFilter {
+                expandedPaths = expandedPathsBeforeFilter
+                self.expandedPathsBeforeFilter = nil
+            }
+            rebuildRows()
+            return
+        }
+        if expandedPathsBeforeFilter == nil {
+            expandedPathsBeforeFilter = expandedPaths
+        }
+        let parentPath = roots.first?.passwordEntity.parent?.path
+        let matches = PasswordStore.shared.fetchPasswordEntityCoreData(withDir: false)
+            .filter { entity in
+                (parentPath == nil || entity.path.hasPrefix(parentPath! + "/")) && Self.fuzzyMatch(query, entity.nameWithDir)
+            }
+            .map(\.path)
+        var visible = Set(matches)
+        var folders = Set<String>()
+        for path in matches {
+            var ancestor = ""
+            for component in path.split(separator: "/").dropLast() {
+                ancestor = ancestor.isEmpty ? String(component) : "\(ancestor)/\(component)"
+                folders.insert(ancestor)
+            }
+        }
+        visible.formUnion(folders)
+        visiblePaths = visible
+        expandedPaths = folders
+        rebuildRows()
+    }
+
+    private static func fuzzyMatch(_ query: String, _ text: String) -> Bool {
+        var remaining = Substring(query.lowercased())
+        for character in text.lowercased() where character == remaining.first {
+            remaining.removeFirst()
+            if remaining.isEmpty {
+                return true
+            }
+        }
+        return remaining.isEmpty
+    }
+
     func index(ofPath path: String) -> Int? {
         rows.firstIndex { $0.entry.passwordEntity.path == path }
     }
@@ -91,6 +141,9 @@ class PasswordTree {
 
     private func appendRows(for entries: [PasswordTableEntry], depth: Int, parentPath: String?) {
         for entry in entries {
+            if let visiblePaths, !visiblePaths.contains(entry.passwordEntity.path) {
+                continue
+            }
             rows.append(PasswordTreeRow(entry: entry, depth: depth, parentPath: parentPath))
             if entry.isDir, expandedPaths.contains(entry.passwordEntity.path) {
                 appendRows(for: Self.sortedChildren(of: entry.passwordEntity), depth: depth + 1, parentPath: entry.passwordEntity.path)

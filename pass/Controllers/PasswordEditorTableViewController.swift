@@ -63,6 +63,22 @@ class PasswordEditorTableViewController: UITableViewController {
     private var scanQRCodeCell: UITableViewCell?
     private lazy var lengthLabel = UILabel()
 
+    // Pass Picker's path suggestions: every folder in the store, offered under the name field as you type.
+    private lazy var folderSuggestions: [String] = {
+        var folders = Set<String>()
+        for entity in PasswordStore.shared.fetchPasswordEntityCoreData(withDir: false) {
+            let parts = entity.nameWithDir.split(separator: "/")
+            for index in parts.indices.dropLast() {
+                folders.insert(parts[...index].joined(separator: "/") + "/")
+            }
+        }
+        return folders.sorted { $0.localizedCompare($1) == .orderedAscending }
+    }()
+
+    private let suggestionsView = UIStackView()
+    private var shownSuggestions = [String]()
+    private var suggestionIndex = -1
+
     var plainText: String {
         // A blank new password keeps the current one.
         var plainText = fillPasswordCell?.getContent() ?? ""
@@ -149,10 +165,6 @@ class PasswordEditorTableViewController: UITableViewController {
         }
     }
 
-    override func viewDidLayoutSubviews() {
-        additionsCell?.contentTextView.setContentOffset(.zero, animated: false)
-    }
-
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cellData = tableData[indexPath.section][indexPath.row]
 
@@ -160,6 +172,10 @@ class PasswordEditorTableViewController: UITableViewController {
         case .nameCell:
             nameCell = tableView.dequeueReusableCell(withIdentifier: "textFieldCell", for: indexPath) as? TextFieldTableViewCell
             nameCell?.contentTextField.delegate = self
+            nameCell?.contentTextField.autocorrectionType = .no
+            nameCell?.contentTextField.autocapitalizationType = .none
+            nameCell?.contentTextField.spellCheckingType = .no
+            nameCell?.contentTextField.addTarget(self, action: #selector(nameDidChange), for: .editingChanged)
             nameCell?.setContent(content: cellData[PasswordEditorCellKey.content] as? String)
             return nameCell!
         case .fillPasswordCell:
@@ -188,6 +204,8 @@ class PasswordEditorTableViewController: UITableViewController {
             additionsCell?.contentTextView.delegate = self
             additionsCell?.setContent(content: cellData[PasswordEditorCellKey.content] as? String)
             additionsCell?.contentTextView.textColor = mode.text
+            // The field grows with its content instead of scrolling inside the form.
+            additionsCell?.contentTextView.isScrollEnabled = false
             return additionsCell!
         case .deletePasswordCell:
             return deletePasswordCell!
@@ -289,6 +307,110 @@ class PasswordEditorTableViewController: UITableViewController {
             button.trailingAnchor.constraint(equalTo: margins.trailingAnchor),
         ])
         return cell
+    }
+
+    // MARK: - Path suggestions
+
+    /// Up to eight folders containing what's typed, those starting with it first, as in Pass Picker.
+    private func filteredFolderSuggestions(for name: String) -> [String] {
+        guard !name.isEmpty else {
+            return Array(folderSuggestions.prefix(8))
+        }
+        let lower = name.lowercased()
+        let matches = folderSuggestions.filter { $0.lowercased().contains(lower) && $0 != name }
+        let starting = matches.filter { $0.lowercased().hasPrefix(lower) }
+        let others = matches.filter { !$0.lowercased().hasPrefix(lower) }
+        return Array((starting + others).prefix(8))
+    }
+
+    @objc
+    private func nameDidChange() {
+        suggestionIndex = -1
+        showSuggestions()
+    }
+
+    private func showSuggestions() {
+        guard let field = nameCell?.contentTextField else {
+            return
+        }
+        shownSuggestions = filteredFolderSuggestions(for: field.text ?? "")
+        suggestionsView.arrangedSubviews.forEach { $0.removeFromSuperview() }
+        guard !shownSuggestions.isEmpty else {
+            hideSuggestions()
+            return
+        }
+        for (index, folder) in shownSuggestions.enumerated() {
+            let button = UIButton(type: .custom)
+            button.setTitle(folder, for: .normal)
+            button.setTitleColor(mode.text, for: .normal)
+            button.titleLabel?.font = Theme.mono(13, relativeTo: .footnote)
+            button.titleLabel?.lineBreakMode = .byTruncatingMiddle
+            button.contentHorizontalAlignment = .leading
+            button.contentEdgeInsets = UIEdgeInsets(top: 9, left: 12, bottom: 9, right: 12)
+            button.backgroundColor = index == suggestionIndex ? UIColor.white.withAlphaComponent(0.1) : .clear
+            button.tag = index
+            button.addTarget(self, action: #selector(tapSuggestion), for: .touchUpInside)
+            suggestionsView.addArrangedSubview(button)
+        }
+        if suggestionsView.superview == nil {
+            suggestionsView.axis = .vertical
+            suggestionsView.backgroundColor = mode.input
+            suggestionsView.layer.cornerRadius = 8
+            suggestionsView.clipsToBounds = true
+            // Set apart from the input it covers.
+            suggestionsView.layer.borderWidth = 1
+            suggestionsView.layer.borderColor = mode.label.withAlphaComponent(0.5).cgColor
+            suggestionsView.layer.zPosition = 10
+            tableView.addSubview(suggestionsView)
+        }
+        // Just under the field, over the rows below it.
+        let fieldFrame = field.convert(field.bounds, to: tableView)
+        let size = suggestionsView.systemLayoutSizeFitting(CGSize(width: fieldFrame.width, height: 0), withHorizontalFittingPriority: .required, verticalFittingPriority: .fittingSizeLevel)
+        suggestionsView.frame = CGRect(x: fieldFrame.minX, y: fieldFrame.maxY + 4, width: fieldFrame.width, height: size.height)
+        suggestionsView.isHidden = false
+        tableView.bringSubviewToFront(suggestionsView)
+    }
+
+    private func hideSuggestions() {
+        suggestionsView.isHidden = true
+        shownSuggestions = []
+        suggestionIndex = -1
+    }
+
+    private var suggestionsAreShown: Bool {
+        !suggestionsView.isHidden && !shownSuggestions.isEmpty
+    }
+
+    private func applySuggestion(_ folder: String) {
+        nameCell?.contentTextField.text = folder
+        tableData[nameSection][0][PasswordEditorCellKey.content] = folder
+        hideSuggestions()
+        nameCell?.contentTextField.becomeFirstResponder()
+    }
+
+    @objc
+    private func tapSuggestion(_ sender: UIButton) {
+        applySuggestion(shownSuggestions[sender.tag])
+    }
+
+    @objc
+    private func nextSuggestion() {
+        suggestionIndex = min(suggestionIndex + 1, shownSuggestions.count - 1)
+        showSuggestions()
+    }
+
+    @objc
+    private func previousSuggestion() {
+        suggestionIndex = max(suggestionIndex - 1, -1)
+        showSuggestions()
+    }
+
+    @objc
+    private func applySelectedSuggestion() {
+        guard shownSuggestions.indices.contains(suggestionIndex) else {
+            return
+        }
+        applySuggestion(shownSuggestions[suggestionIndex])
     }
 
     // MARK: - Password generator
@@ -715,8 +837,15 @@ extension PasswordEditorTableViewController: SFSafariViewControllerDelegate {
 
 extension PasswordEditorTableViewController: UITextFieldDelegate {
     // update tableData so to make sure reloadData() works correctly
+    func textFieldDidBeginEditing(_ textField: UITextField) {
+        if textField == nameCell?.contentTextField {
+            showSuggestions()
+        }
+    }
+
     func textFieldDidEndEditing(_ textField: UITextField) {
         if textField == nameCell?.contentTextField {
+            hideSuggestions()
             tableData[nameSection][0][PasswordEditorCellKey.content] = nameCell?.getContent()
         } else if textField == fillPasswordCell?.contentTextField {
             if let plainPassword = fillPasswordCell?.getContent() {
@@ -730,6 +859,16 @@ extension PasswordEditorTableViewController: UITextFieldDelegate {
 
 extension PasswordEditorTableViewController: UITextViewDelegate {
     // update tableData so to make sure reloadData() works correctly
+    func textViewDidChange(_ textView: UITextView) {
+        guard textView == additionsCell?.contentTextView else {
+            return
+        }
+        UIView.performWithoutAnimation {
+            tableView.beginUpdates()
+            tableView.endUpdates()
+        }
+    }
+
     func textViewDidEndEditing(_ textView: UITextView) {
         if textView == additionsCell?.contentTextView {
             tableData[additionsSection][0][PasswordEditorCellKey.content] = additionsCell?.getContent()
@@ -745,7 +884,21 @@ extension PasswordEditorTableViewController {
     }
 
     override var keyCommands: [UIKeyCommand]? {
-        [
+        // In the name field, the suggestions take ↓ ↑, Return/Tab (with one picked) and Esc.
+        var suggestionCommands = [UIKeyCommand]()
+        if suggestionsAreShown, nameCell?.contentTextField.isFirstResponder == true {
+            suggestionCommands = [
+                .shortcut(UIKeyCommand.inputDownArrow, action: #selector(nextSuggestion)),
+                .shortcut(UIKeyCommand.inputUpArrow, action: #selector(previousSuggestion)),
+            ]
+            if suggestionIndex >= 0 {
+                suggestionCommands += [
+                    .shortcut("\r", action: #selector(applySelectedSuggestion)),
+                    .shortcut("\t", action: #selector(applySelectedSuggestion)),
+                ]
+            }
+        }
+        return suggestionCommands + [
             .shortcut(UIKeyCommand.inputEscape, action: #selector(cancelFromKeyboard), title: "Cancel"),
             .shortcut("\r", action: #selector(saveFromKeyboard), modifiers: .command, title: "Save"),
             .shortcut("r", action: #selector(generateFromKeyboard), modifiers: .command, title: "Generate Password"),
@@ -762,6 +915,10 @@ extension PasswordEditorTableViewController {
 
     @objc
     private func cancelFromKeyboard() {
+        if suggestionsAreShown {
+            hideSuggestions()
+            return
+        }
         trigger(navigationItem.leftBarButtonItem)
     }
 

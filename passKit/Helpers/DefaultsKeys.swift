@@ -62,6 +62,7 @@ public extension DefaultsKeys {
     var isRememberPGPPassphraseOn: DefaultsKey<Bool> { DefaultsKey("isRememberPGPPassphraseOn", defaultValue: false) }
     var pgpPassphraseDuration: DefaultsKey<Int> { DefaultsKey("pgpPassphraseDuration", defaultValue: 10 * 60) }
     var isBiometricPGPUnlockOn: DefaultsKey<Bool> { DefaultsKey("isBiometricPGPUnlockOn", defaultValue: false) }
+    var isAutoResizePanesOn: DefaultsKey<Bool> { DefaultsKey("isAutoResizePanesOn", defaultValue: false) }
     // The editor's generator, as in Pass Picker.
     var passwordGeneratorLength: DefaultsKey<Int> { DefaultsKey("passwordGeneratorLength", defaultValue: 12) }
     var passwordGeneratorSpecialCharacters: DefaultsKey<String> { DefaultsKey("passwordGeneratorSpecialCharacters", defaultValue: "!@#$%^&*()_") }

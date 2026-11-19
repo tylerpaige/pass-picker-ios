@@ -64,6 +64,9 @@ class PasswordBrowserViewController: UIViewController {
     private var focusZone = FocusZone.list {
         didSet {
             updateDimming()
+            if focusZone != oldValue {
+                resizePanesForFocus()
+            }
         }
     }
 
@@ -143,6 +146,8 @@ class PasswordBrowserViewController: UIViewController {
 
         updateFooter()
         updateDimming()
+        // The app opens on the file explorer, so with the setting on it opens large.
+        resizePanesForFocus(animated: false)
         let notificationCenter = NotificationCenter.default
         notificationCenter.addObserver(self, selector: #selector(updateHeader), name: .passwordStoreUpdated, object: nil)
         notificationCenter.addObserver(self, selector: #selector(updateHeader), name: .passwordStoreSyncSucceeded, object: nil)
@@ -165,6 +170,9 @@ class PasswordBrowserViewController: UIViewController {
         field.borderStyle = .none
         field.font = PaneTextButton.font
         field.textColor = color
+        // Typed text keeps the color too, rather than the system's black.
+        field.defaultTextAttributes = [.foregroundColor: color, .font: PaneTextButton.font]
+        field.typingAttributes = field.defaultTextAttributes
         field.attributedPlaceholder = NSAttributedString(
             string: "search (cmd+f)",
             attributes: [.foregroundColor: color.withAlphaComponent(0.8), .font: PaneTextButton.font]
@@ -292,9 +300,34 @@ class PasswordBrowserViewController: UIViewController {
         min(max(value, lower), max(lower, upper))
     }
 
+    /// With "Resize Panes on Focus" on, the focused pane grows as far as it can and the other shrinks.
+    private func resizePanesForFocus(animated: Bool = true) {
+        guard Defaults.isAutoResizePanesOn else {
+            return
+        }
+        // Past the ends; the layout clamps each pane to its minimum size.
+        let fraction: CGFloat = focusZone == .list ? 1 : 0
+        sideBySideFraction = fraction
+        stackedFraction = fraction
+        view.setNeedsLayout()
+        guard animated else {
+            return
+        }
+        UIView.animate(withDuration: 0.25, delay: 0, options: [.curveEaseInOut, .beginFromCurrentState]) {
+            self.view.layoutIfNeeded()
+        }
+    }
+
     @objc
     private func dragDivider(_ gesture: UIPanGestureRecognizer) {
         if gesture.state == .began {
+            // Start from where the divider is, not a fraction the layout clamped.
+            let area = view.bounds.inset(by: view.safeAreaInsets)
+            if layout == .sideBySide {
+                sideBySideFraction = (divider.frame.minX - area.minX) / max(area.width, 1)
+            } else {
+                stackedFraction = listPane.frame.height / max(listPane.frame.height + detailPane.frame.height, 1)
+            }
             dragStartFraction = layout == .sideBySide ? sideBySideFraction : stackedFraction
         }
         let translation = gesture.translation(in: view)

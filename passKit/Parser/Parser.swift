@@ -29,6 +29,11 @@ class Parser {
         while lineNumber < purgedAdditionalLines.count {
             let line = purgedAdditionalLines[lineNumber]
             lineNumber += 1
+            if let listItems = gatherListItems(after: line, startingAt: &lineNumber) {
+                let key = String(line.trimmed.dropLast()).trimmed
+                additions += listItems.map { AdditionField(title: key, content: $0, isListItem: true) }
+                continue
+            }
             var (key, value) = Self.getKeyValuePair(from: line)
             if key == nil {
                 unknownIndex += 1
@@ -41,6 +46,30 @@ class Parser {
             additions.append(key! => value)
         }
         return additions
+    }
+
+    /// A bulleted list:
+    ///
+    ///     recovery codes:
+    ///     - 4f9a-21c8
+    ///     - 77be-0d13
+    ///
+    /// Returns the items when `line` is a bare "key:" and "- " lines follow it.
+    private func gatherListItems(after line: String, startingAt lineNumber: inout Int) -> [String]? {
+        let header = line.trimmed
+        guard header.count > 1, header.hasSuffix(":"), !header.contains(": ") else {
+            return nil
+        }
+        var items = [String]()
+        while lineNumber < purgedAdditionalLines.count {
+            let bullet = purgedAdditionalLines[lineNumber].trimmed
+            guard bullet.hasPrefix("- ") else {
+                break
+            }
+            items.append(String(bullet.dropFirst(2)).trimmed)
+            lineNumber += 1
+        }
+        return items.isEmpty ? nil : items
     }
 
     private func gatherMultilineValue(startingAt lineNumber: inout Int, removingLineBreaks: Bool) -> String {

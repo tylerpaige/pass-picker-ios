@@ -45,6 +45,18 @@ class GeneralSettingsTableViewController: BasicStaticTableViewController {
         return uiSwitch
     }()
 
+    private lazy var autoResizePanesSwitch: UISwitch = {
+        let uiSwitch = UISwitch()
+        uiSwitch.onTintColor = Theme.Palette.datumBackground
+        uiSwitch.sizeToFit()
+        uiSwitch.addTarget(self, action: #selector(autoResizePanesSwitchAction), for: UIControl.Event.valueChanged)
+        uiSwitch.isOn = Defaults.isAutoResizePanesOn
+        return uiSwitch
+    }()
+
+    private let autoResizePanesTitle = "Resize Panes on Focus"
+    private let suggestionsSection = 2
+
     override func viewDidLoad() {
         // The repository and passphrase settings live in Password Repository and Encryption.
         tableData = [
@@ -53,6 +65,9 @@ class GeneralSettingsTableViewController: BasicStaticTableViewController {
                 [.title: "HideUnknownFields".localize(), .action: "none"],
                 [.title: "HideOtpFields".localize(), .action: "none"],
                 [.title: "AutoCopyOTP".localize(), .action: "none"],
+            ],
+            [
+                [.title: autoResizePanesTitle, .action: "none"],
             ],
             [
                 [.title: "Clear Saved Suggestions", .action: "none", .accessoryType: UITableViewCell.AccessoryType.none],
@@ -74,6 +89,8 @@ class GeneralSettingsTableViewController: BasicStaticTableViewController {
             addDetailButton(to: cell, for: hideOTPSwitch, with: #selector(tapHideOTPSwitchDetailButton))
         case "EnableGPGID".localize():
             cell.accessoryView = enableGPGIDSwitch
+        case autoResizePanesTitle:
+            cell.accessoryView = autoResizePanesSwitch
         case "Clear Saved Suggestions":
             cell.selectionStyle = .default
         case "AutoCopyOTP".localize():
@@ -86,7 +103,11 @@ class GeneralSettingsTableViewController: BasicStaticTableViewController {
     }
 
     override func tableView(_: UITableView, titleForFooterInSection section: Int) -> String? {
-        guard section == 1 else {
+        if section == 1 {
+            return "Switching between the file explorer and the entry makes the one you switch to as large as it can be, "
+                + "and the other as small."
+        }
+        guard section == suggestionsSection else {
             return nil
         }
         return "When you fill a password with AutoFill, Pass Picker remembers it for that app or website "
@@ -182,6 +203,11 @@ class GeneralSettingsTableViewController: BasicStaticTableViewController {
     @objc
     func autoCopyOTPSwitchAction(_: Any?) {
         Defaults.autoCopyOTP = autoCopyOTPSwitch.isOn
+    }
+
+    @objc
+    func autoResizePanesSwitchAction(_: Any?) {
+        Defaults.isAutoResizePanesOn = autoResizePanesSwitch.isOn
     }
 
     @objc

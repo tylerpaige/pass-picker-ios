@@ -661,7 +661,7 @@
                     </tableView>
                     <connections>
                         <segue destination="eui-w4-P7T" kind="show" identifier="editPasswordSegue" id="Ydg-pZ-oNS"/>
-                        <segue destination="kNf-lG-BeC" kind="presentation" identifier="showRawPasswordSegue" modalTransitionStyle="flipHorizontal" id="qpR-3X-eyt"/>
+                        <segue destination="kNf-lG-BeC" kind="presentation" identifier="showRawPasswordSegue" id="qpR-3X-eyt"/>
                     </connections>
                 </tableViewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="9sC-44-OKL" userLabel="First Responder" sceneMemberID="firstResponder"/>

@@ -301,19 +301,14 @@ class PasswordDetailTableViewController: UITableViewController, AlertPresenting 
         if let login = password.login {
             section.item.append(Constants.LOGIN_KEYWORD => login)
         }
+        // The one-time password comes right after the password.
+        if password.otpType != .none, let (title, otp) = password.getOtpStrings() {
+            section.item.insert(title => otp, at: 1)
+            oneTimePasswordIndexPath = IndexPath(row: 1, section: tableData.count)
+        }
         tableData.append(section)
 
         // addition section
-
-        // show one time password
-        if password.otpType != .none {
-            if let (title, otp) = self.password?.getOtpStrings() {
-                section = TableSection(type: .addition, header: "OneTimePassword".localize())
-                section.item.append(title => otp)
-                tableData.append(section)
-                oneTimePasswordIndexPath = IndexPath(row: 0, section: tableData.count - 1)
-            }
-        }
 
         // show additional information
         let filteredAdditionKeys = password.getFilteredAdditions()
@@ -420,7 +415,15 @@ class PasswordDetailTableViewController: UITableViewController, AlertPresenting 
             cell.delegatePasswordTableView = self
             // The first field sits directly under the title; every later one gets a rule above it.
             cell.showsRuleAbove = !(tableData[sectionIndex].type == .main && rowIndex == 0)
-            cell.cellData = LabelTableViewCellData(title: titleData, content: contentData)
+            // A bulleted list: its title once, then the items as tight pills.
+            let items = tableData[sectionIndex].item
+            let continuesList = tableDataItem.isListItem && rowIndex > 0 && items[rowIndex - 1].isListItem && items[rowIndex - 1].title == titleData
+            let listContinues = tableDataItem.isListItem && rowIndex + 1 < items.count && items[rowIndex + 1].isListItem && items[rowIndex + 1].title == titleData
+            cell.listPosition = (isItem: tableDataItem.isListItem, continuesList: continuesList, listContinues: listContinues)
+            if continuesList {
+                cell.showsRuleAbove = false
+            }
+            cell.cellData = LabelTableViewCellData(title: continuesList ? "" : titleData, content: contentData)
             // Selection shows hardware keyboard focus.
             cell.selectionStyle = .default
             return cell
@@ -617,6 +620,8 @@ extension PasswordDetailTableViewController {
             .shortcut(UIKeyCommand.inputUpArrow, action: #selector(focusPreviousField)),
             .shortcut("j", action: #selector(focusNextField)),
             .shortcut("k", action: #selector(focusPreviousField)),
+            .shortcut("s", action: #selector(focusNextField)),
+            .shortcut("w", action: #selector(focusPreviousField)),
             .shortcut("\r", action: #selector(copyFocusedField), title: "Copy"),
             .shortcut("c", action: #selector(copyFocusedField)),
             .shortcut("r", action: #selector(revealFocusedField), title: "Reveal"),
